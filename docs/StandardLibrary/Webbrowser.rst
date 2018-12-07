@@ -71,7 +71,7 @@ webbrowser 预定义了多种浏览器类型。该表给出可以传递到 get()
 'chrome'                  Chrome('chrome')
 'chromium'                Chromium('chromium')
 'chromium-browser'	      Chromium('chromium-browser')
-
+=====================   =================================
 
 webbrowser.register(name, constructor, instance=None)
 =========================================================
