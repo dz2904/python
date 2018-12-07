@@ -3,7 +3,7 @@
 
 webbrowser 模块提供了一个可以向用户展示 Web 文档的高级接口。在绝大多数情况下，使用本模块的 open() 函数即可。
 
-脚本 webbrowser 可以用作命令行接口。它接受 URL 作为参数。它也接受如下可选参数：-n 如果可以，在新浏览器窗口打开 URL； -t 在浏览器新标签页（TAB）打开URL。当然，这两个选项是互斥的，不可共存。用法示例︰
+脚本 webbrowser 可以用作命令行接口。它接受 URL 作为参数。它也接受如下可选参数：-n 如果可以，在新浏览器窗口打开 URL； -t 在浏览器新标签页（TAB）打开 URL。当然，这两个选项是互斥的，不可共存。用法示例︰
 
 
 .. highlight:: none
@@ -16,7 +16,7 @@ webbrowser 模块提供了一个可以向用户展示 Web 文档的高级接口�
 
 ::
 
-        exception webbrowser.Error  浏览器控制引发的异常。
+    exception webbrowser.Error  浏览器控制引发的异常。
 
 可用函数：
 ************************
