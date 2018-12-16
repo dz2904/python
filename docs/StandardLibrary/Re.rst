@@ -1,0 +1,413 @@
+正则表达式
+########################
+
+有些人面临问题时会想：“我知道，我将使用正则表达式来解决这个问题。”这让他们面临的问题变成了两个。——Jamie Zawinski
+
+模块 re 提供了对正则表达式的支持。需要指出的是，要掌握正则表达式有点难。关键是每次学习一点点：只考虑完成特定任务所需的知识。预先将所有的知识牢记在心毫无意义。
+
+在 Python 中使用正则表达式有几个步骤，但每一步都相当简单。
+
+1. 用 import re 导入正则表达式模块。
+2. 用 re.compile() 函数创建一个 Regex 对象（记得使用原始字符串）。
+3. 向 Regex 对象的 search() 方法传入想查找的字符串。它返回一个 Match 对象。
+4. 调用 Match 对象的 group() 方法，返回实际匹配文本的字符串。
+
+.. highlight:: none
+
+::
+
+    >>>  import re
+    >>>  phoneNumRegex = re.compile(r'\d\d\d-\d\d\d-\d\d\d\d')
+    >>>  mo = phoneNumRegex.search('My number is 415-555-4242.')
+    >>>  print('Phone number found: ' + mo.group())
+    Phone number found: 415-555-4242
+
+
+匹配更多模式
+************************
+
+利用括号分组
+========================
+
+假定想要将区号从电话号码中分离。添加括号将在正则表达式中创建“分组”：(\d\d\d)-(\d\d\d-\d\d\d\d)。然后可以使用 group() 匹配对象方法，从一个分组中获取匹配的文本。
+
+正则表达式字符串中的第一对括号是第 1 组。第二对括号是第 2 组。向 group() 匹配对象方法传入整数 1 或 2，就可以取得匹配文本的不同部分。向 group() 方法传入 0 或不传入参数，将返回整个匹配的文本。在交互式环境中输入以下代码：
+
+::
+
+    >>>  phoneNumRegex = re.compile(r'(\d\d\d)-(\d\d\d-\d\d\d\d)')
+    >>>  mo = phoneNumRegex.search('My number is 415-555-4242.')
+    >>>  mo.group(1)
+    '415'
+    >>>  mo.group(2)
+    '555-4242'
+    >>>  mo.group(0)
+    '415-555-4242'
+    >>>  mo.group()
+    '415-555-4242'
+
+
+如果想要一次就获取所有的分组，请使用 groups() 方法，注意函数名的复数形式。
+
+::
+
+    >>>  mo.groups()
+    ('415', '555-4242')
+    >>>  areaCode, mainNumber = mo.groups()
+    >>>  print(areaCode)
+    415
+    >>>  print(mainNumber)
+    555-4242
+
+因为 mo.groups() 返回多个值的元组，所以你可以使用多重复制的技巧，每个值赋给一个独立的变量，就像前面的代码行：areaCode, mainNumber = mo.groups()。
+
+括号在正则表达式中有特殊的含义，但是如果你需要在文本中匹配括号，怎么办？例如，你要匹配的电话号码，可能将区号放在一对括号中。在这种情况下，就需要用倒斜杠对 ( 和 ) 进行字符转义。在交互式环境中输入以下代码：
+
+::
+
+    >>>  phoneNumRegex = re.compile(r'(\(\d\d\d\)) (\d\d\d-\d\d\d\d)')
+    >>>  mo = phoneNumRegex.search('My phone number is (415) 555-4242.')
+    >>>  mo.group(1)
+    '(415)'
+    >>>  mo.group(2)
+    '555-4242'
+
+传递给 re.compile() 的原始字符串中， ( 和 ) 转义字符将匹配实际的括号字符。
+
+用管道匹配多个分组
+========================
+
+字符 `` | `` 称为“管道”。希望匹配许多表达式中的一个时，就可以使用它。例如，正则表达式 r'Batman|Tina Fey' 将匹配 'Batman' 或 'Tina Fey'。
+
+如果 Batman 和 Tina Fey 都出现在被查找的字符串中，第一次出现的匹配文本，将作为 Match 对象返回。在交互式环境中输入以下代码：
+
+::
+
+    >>>  heroRegex = re.compile (r'Batman|Tina Fey')
+    >>>  mo1 = heroRegex.search('Batman and Tina Fey.')
+    >>>  mo1.group()
+    'Batman'
+
+    >>>  mo2 = heroRegex.search('Tina Fey and Batman.')
+    >>>  mo2.group()
+    'Tina Fey'
+
+也可以使用管道来匹配多个模式中的一个，作为正则表达式的一部分。例如，假设你希望匹配 'Batman'、'Batmobile'、'Batcopter' 和 'Batbat' 中任意一个。因为所有这些字符串都以 Bat 开始，所以如果能够只指定一次前缀，就很方便。这可以通过括号实现。在交互式环境中输入以下代码：
+
+::
+
+    >>>  batRegex = re.compile(r'Bat(man|mobile|copter|bat)')
+    >>>  mo = batRegex.search('Batmobile lost a wheel')
+    >>>  mo.group()
+    'Batmobile'
+    >>>  mo.group(1)
+    'mobile'
+
+方法调用 mo.group() 返回了完全匹配的文本 'Batmobile'，而 mo.group(1) 只是返回第一个括号分组内匹配的文本 'mobile'。通过使用管道字符和分组括号，可以指定几种可选的模式，让正则表达式去匹配。
+
+用问号实现可选匹配
+========================
+
+有时候，想匹配的模式是可选的。就是说，不论这段文本在不在，正则表达式都会认为匹配。字符?表明它前面的分组在这个模式中是可选的。例如，在交互式环境中输入以下代码：
+
+::
+
+    >>>  batRegex = re.compile(r'Bat(wo)?man')
+    >>>  mo1 = batRegex.search('The Adventures of Batman')
+    >>>  mo1.group()
+    'Batman'
+
+    >>>  mo2 = batRegex.search('The Adventures of Batwoman')
+    >>>  mo2.group()
+    'Batwoman'
+
+正则表达式中的 (wo)? 部分表明，模式 wo 是可选的分组。该正则表达式匹配的文本中，wo 将出现零次或一次。这就是为什么正则表达式既匹配 'Batwoman'，又匹配 'Batman'。
+
+利用前面电话号码的例子，你可以让正则表达式寻找包含区号或不包含区号的电话号码。在交互式环境中输入以下代码：
+
+::
+
+    >>>  phoneRegex = re.compile(r'(\d\d\d-)?\d\d\d-\d\d\d\d')
+    >>>  mo1 = phoneRegex.search('My number is 415-555-4242')
+    >>>  mo1.group()
+    '415-555-4242'
+    >>>  mo2 = phoneRegex.search('My number is 555-4242')
+    >>>  mo2.group()
+    '555-4242'
+
+你可以认为?是在说，“匹配这个问号之前的分组零次或一次”。
+
+用星号匹配零次或多次
+========================
+
+*（称为星号）意味着“匹配零次或多次”，即星号之前的分组，可以在文本中出现任意次。它可以完全不存在，或一次又一次地重复。让我们再来看看 Batman 的例子。
+
+::
+
+    >>>  batRegex = re.compile(r'Bat(wo)*man')
+    >>>  mo1 = batRegex.search('The Adventures of Batman')
+    >>>  mo1.group()
+    'Batman'
+
+    >>>  mo2 = batRegex.search('The Adventures of Batwoman')
+    >>>  mo2.group()
+    'Batwoman'
+
+    >>>  mo3 = batRegex.search('The Adventures of Batwowowowoman')
+    >>>  mo3.group()
+    'Batwowowowoman'
+
+对于 'Batman'，正则表达式的 (wo) 部分匹配 wo 的零个实例。对于 'Batwoman'，(wo) 匹配 wo 的一个实例。对于 'Batwowowowoman'，(wo)* 匹配 wo 的 4 个实例。
+
+用加号匹配一次或多次
+========================
+
+*意味着“匹配零次或多次”，+（加号）则意味着“匹配一次或多次”。星号不要求分组出现在匹配的字符串中，但加号不同，加号前面的分组必须“至少出现一次”。这不是可选的。在交互式环境中输入以下代码，把它和前一节的星号正则表达式进行比较：
+
+::
+
+    >>>  batRegex = re.compile(r'Bat(wo)+man')
+    >>>  mo1 = batRegex.search('The Adventures of Batwoman')
+    >>>  mo1.group()
+    'Batwoman'
+
+    >>>  mo2 = batRegex.search('The Adventures of Batwowowowoman')
+    >>>  mo2.group()
+    'Batwowowowoman'
+
+    >>>  mo3 = batRegex.search('The Adventures of Batman')
+    >>>  mo3 == None
+    True
+
+正则表达式 Bat(wo)+man 不会匹配字符串 'The Adventures of Batman'，因为加号要求 wo 至少出现一次。
+
+
+用花括号匹配特定次数
+========================
+
+如果想要一个分组重复特定次数，就在正则表达式中该分组的后面，跟上花括号包围的数字。例如，正则表达式 (Ha){3} 将匹配字符串 'HaHaHa'，但不会匹配 'HaHa'，因为后者只重复了 (Ha) 分组两次。
+
+除了一个数字，还可以指定一个范围，即在花括号中写下一个最小值、一个逗号和一个最大值。例如，正则表达式 (Ha){3,5} 将匹配 'HaHaHa'、'HaHaHaHa' 和 'HaHaHaHaHa'。
+
+也可以不写花括号中的第一个或第二个数字，不限定最小值或最大值。例如，(Ha){3,} 将匹配 3 次或更多次实例，(Ha){,5} 将匹配 0 到 5 次实例。花括号让正则表达式更简短。这两个正则表达式匹配同样的模式：
+
+::
+
+    (Ha){3}
+    (Ha)(Ha)(Ha)
+
+这两个正则表达式也匹配同样的模式：
+
+::
+
+    (Ha){3,5}
+    ((Ha)(Ha)(Ha))|((Ha)(Ha)(Ha)(Ha))|((Ha)(Ha)(Ha)(Ha)(Ha))
+
+在交互式环境中输入以下代码：
+
+::
+
+    >>>  haRegex = re.compile(r'(Ha){3}')
+    >>>  mo1 = haRegex.search('HaHaHa')
+    >>>  mo1.group()
+    'HaHaHa'
+
+    >>>  mo2 = haRegex.search('Ha')
+    >>>  mo2 == None
+    True
+
+这里，(Ha){3} 匹配 'HaHaHa'，但不匹配 'Ha'。因为它不匹配 'Ha'，所以 search() 返回 None。
+
+贪心和非贪心匹配
+***********************
+
+在字符串 'HaHaHaHaHa' 中，因为 (Ha){3,5} 可以匹配 3 个、4 个或 5 个实例，你可能会想，为什么在前面花括号的例子中，Match 对象的 group() 调用会返回 'HaHaHaHaHa'，而不是更短的可能结果。毕竟，'HaHaHa' 和 'HaHaHaHa' 也能够有效地匹配正则表达式 (Ha){3,5}。
+
+Python 的正则表达式默认是“贪心”的，这表示在有二义的情况下，它们会尽可能匹配最长的字符串。花括号的“非贪心”版本匹配尽可能最短的字符串，即在结束的花括号后跟着一个问号。
+
+在交互式环境中输入以下代码，注意在查找相同字符串时，花括号的贪心形式和非贪心形式之间的区别：
+
+::
+
+   >>>  greedyHaRegex = re.compile(r'(Ha){3,5}')
+   >>>  mo1 = greedyHaRegex.search('HaHaHaHaHa')
+   >>>  mo1.group()
+   'HaHaHaHaHa'
+
+   >>>  nongreedyHaRegex = re.compile(r'(Ha){3,5}?')
+   >>>  mo2 = nongreedyHaRegex.search('HaHaHaHaHa')
+   >>>  mo2.group()
+   'HaHaHa'
+
+请注意，问号在正则表达式中可能有两种含义：声明非贪心匹配或表示可选的分组。这两种含义是完全无关的。
+
+findall() 方法
+***********************
+
+除了 search 方法外，Regex 对象也有一个 findall() 方法。search() 将返回一个 Match 对象，包含被查找字符串中的“第一次”匹配的文本，而 findall() 方法将返回一组字符串，包含被查找字符串中的所有匹配。为了看看 search() 返回的 Match 对象只包含第一次出现的匹配文本，请在交互式环境中输入以下代码：
+
+::
+
+   >>>  phoneNumRegex = re.compile(r'\d\d\d-\d\d\d-\d\d\d\d')
+   >>>  mo = phoneNumRegex.search('Cell: 415-555-9999 Work: 212-555-0000')
+   >>>  mo.group()
+   '415-555-9999'
+
+另一方面，findall() 不是返回一个 Match 对象，而是返回一个字符串列表，只要在正则表达式中没有分组。列表中的每个字符串都是一段被查找的文本，它匹配该正则表达式。在交互式环境中输入以下代码：
+
+::
+
+    >>>  phoneNumRegex = re.compile(r'\d\d\d-\d\d\d-\d\d\d\d') # has no groups
+    >>>  phoneNumRegex.findall('Cell: 415-555-9999 Work: 212-555-0000')
+    ['415-555-9999', '212-555-0000']
+
+如果在正则表达式中有分组，那么 findall 将返回元组的列表。每个元组表示一个找到的匹配，其中的项就是正则表达式中每个分组的匹配字符串。为了看看 findall() 的效果，请在交互式环境中输入以下代码（请注意，被编译的正则表达式现在有括号分组）：
+
+::
+
+    >>>  phoneNumRegex = re.compile(r'(\d\d\d)-(\d\d\d)-(\d\d\d\d)') # has groups
+    >>>  phoneNumRegex.findall('Cell: 415-555-9999 Work: 212-555-0000')
+    [('415', '555', '1122'), ('212', '555', '0000')]
+
+作为 findall() 方法的返回结果的总结，请记住下面两点：
+
+1. 如果调用在一个没有分组的正则表达式上，例如 \d\d\d-\d\d\d-\d\d\d\d，方法 findall() 将返回一个匹配字符串的列表，例如 ['415-555-9999', '212-555-0000']。
+
+2. 如果调用在一个有分组的正则表达式上，例如 (\d\d\d)-(\d\d\d)-(\d\d\d\d)，方法 findall() 将返回一个字符串的元组的列表（每个分组对应一个字符串），例如 [('415', '555', '1122'), ('212', '555', '0000')]。
+
+字符分类
+***********************
+
+在前面电话号码正则表达式的例子中，你知道 \d 可以代表任何数字。也就是说，\d是正则表达式 (0|1|2|3|4|5|6|7|8|9) 的缩写。有许多这样的“缩写字符分类”，如下表所示。
+
+===========   =======
+缩写字符分类      表示
+===========   =======
+\d              0到9的任何数字
+\D              除0到9的数字以外的任何字符
+\w              任何字母、数字或下划线字符（可以认为是匹配“单词”字符）
+\W              除字母、数字和下划线以外的任何字符
+\s              空格、制表符或换行符（可以认为是匹配“空白”字符）
+\S              除空格、制表符和换行符以外的任何字符
+===========   =======
+
+字符分类对于缩短正则表达式很有用。字符分类 [0-5] 只匹配数字 0 到 5，这比输入 (0|1|2|3|4|5) 要短很多。
+
+例如，在交互式环境中输入以下代码：
+
+::
+
+   >>>  xmasRegex = re.compile(r'\d+\s\w+')
+   >>>  xmasRegex.findall('12 drummers, 11 pipers, 10 lords, 9 ladies, 8 maids, 7
+   swans, 6 geese, 5 rings, 4 birds, 3 hens, 2 doves, 1 partridge')
+   ['12 drummers', '11 pipers', '10 lords', '9 ladies', '8 maids', '7 swans', '6
+   geese', '5 rings', '4 birds', '3 hens', '2 doves', '1 partridge']
+
+正则表达式 \d+\s\w+ 匹配的文本有一个或多个数字 (\d+)，接下来是一个空白字符 (\s)，接下来是一个或多个字母/数字/下划线字符(\w+)。findall() 方法将返回所有匹配该正则表达式的字符串，放在一个列表中。
+
+从开始或结尾处开始查找
+***********************
+
+可以在正则表达式的开始处使用插入符号（^），表明匹配必须发生在被查找文本开始处。类似地，可以再正则表达式的末尾加上美元符号（$），表示该字符串必须以这个正则表达式的模式结束。可以同时使用 ^ 和 $，表明整个字符串必须匹配该模式，也就是说，只匹配该字符串的某个子集是不够的。
+
+例如，正则表达式 r'^Hello' 匹配以 'Hello' 开始的字符串。在交互式环境中输入以下代码：
+
+::
+
+    >>>  beginsWithHello = re.compile(r'^Hello')
+    >>>  beginsWithHello.search('Hello world!')
+    < _sre.SRE_Match object; span=(0, 5), match='Hello'>
+    >>>  beginsWithHello.search('He said hello.') == None
+    True
+
+正则表达式 r'\d$' 匹配以数字 0 到 9 结束的字符串。在交互式环境中输入以下代码：
+
+::
+
+    >>>  endsWithNumber = re.compile(r'\d$')
+    >>>  endsWithNumber.search('Your number is 42')
+    < _sre.SRE_Match object; span=(16, 17), match='2'>
+    >>>  endsWithNumber.search('Your number is forty two.') == None
+    True
+
+正则表达式 r'^\d+$' 匹配从开始到结束都是数字的字符串。在交互式环境中输入以下代码：
+
+::
+
+    >>>  wholeStringIsNum = re.compile(r'^\d+$')
+    >>>  wholeStringIsNum.search('1234567890')
+    < _sre.SRE_Match object; span=(0, 10), match='1234567890'>
+    >>>  wholeStringIsNum.search('12345xyz67890') == None
+    True
+    >>>  wholeStringIsNum.search('12 34567890') == None
+    True
+
+前面交互式脚本例子中的最后两次 search() 调用表明，如果使用了 ^ 和 $，那么整个字符串必须匹配该正则表达式。
+
+我总是会混淆这两个符号的含义，所以我使用助记法 “Carrots cost dollars”，提醒我插入符号在前面，美元符号在后面。
+
+通配字符
+***********************
+
+在正则表达式中，.（句点）字符称为“通配符”。它匹配除了换行之外的所有字符。例如，在交互式环境中输入以下代码：
+
+::
+
+    >>>  atRegex = re.compile(r'.at')
+    >>>  atRegex.findall('The cat in the hat sat on the flat mat.')
+    ['cat', 'hat', 'sat', 'lat', 'mat']
+
+要记住，句点字符只匹配一个字符，这就是为什么在前面的例子中，对于文本 flat，只匹配 lat。要匹配真正的句点，就是用倒斜杠转义：.。
+
+用点-星匹配所有字符
+=======================
+
+有时候想要匹配所有字符串。例如，假定想要匹配字符串 'First Name:'，接下来是任意文本，接下来是 'Last Name:'，然后又是任意文本。可以用点-星（.*）表示“任意文本”。回忆一下，句点字符表示“除换行外所有单个字符”，星号字符表示“前面字符出现零次或多次”。
+
+在交互式环境中输入以下代码：
+
+::
+
+    >>>  nameRegex = re.compile(r'First Name: (.*) Last Name: (.*)')
+    >>>  mo = nameRegex.search('First Name: Al Last Name: Sweigart')
+    >>>  mo.group(1)
+    'Al'
+    >>>  mo.group(2)
+    'Sweigart'
+
+点-星使用“贪心”模式：它总是匹配尽可能多的文本。要用“非贪心”模式匹配所有文本，就使用点-星和问号。像和大括号一起使用时那样，问号告诉Python用非贪心模式匹配。在交互式环境中输入以下代码，看看贪心模式和非贪心模式的区别：
+
+::
+
+    >>>  nongreedyRegex = re.compile(r'<.*?>')
+    >>>  mo = nongreedyRegex.search(' for dinner.>')
+    >>>  mo.group()
+    '< To serve man>'
+
+    >>>  greedyRegex = re.compile(r'<.*>')
+    >>>  mo = greedyRegex.search(' for dinner.>')
+    >>>  mo.group()
+    '< To serve man> for dinner.>'
+
+两个正则表达式都可以翻译成“匹配一个左尖括号，接下来是任意字符，接下来是一个右尖括号”。但是字符串 '<To serve man> for dinner.>' 对右肩括号有两种可能的匹配。在非贪心的正则表达式中，Python 匹配最短可能的字符串： '<To serve man>'。在贪心版本中，Python 匹配最长可能的字符串：'<To serve man> for dinner.>'。
+
+用句点字符匹配换行
+=======================
+
+点-星将匹配除换行外的所有字符。通过传入 re.DOTALL 作为 re.compile() 的第二个参数，可以让句点字符匹配所有字符，包括换行字符。
+
+在交互式环境中输入以下代码：
+
+::
+
+    >>>  noNewlineRegex = re.compile('.*')
+    >>>  noNewlineRegex.search('Serve the public trust.\nProtect the innocent.
+    \nUphold the law.').group()
+    'Serve the public trust.'
+
+    >>>  newlineRegex = re.compile('.*', re.DOTALL)
+    >>>  newlineRegex.search('Serve the public trust.\nProtect the innocent.
+    \nUphold the law.').group()
+    'Serve the public trust.\nProtect the innocent.\nUphold the law.'
+
+正则表达式 noNewlineRegex 在创建时没有向 re.compile() 传入 re.DOTALL，它将匹配所有字符，直到第一个换行字符。但是，newlineRegex 在创建时向 re.compile() 传入了 re.DOTALL，它将匹配所有字符。这就是为什么 newlineRegex.search() 调用匹配完整的字符串，包括其中的换行字符。
