@@ -113,12 +113,12 @@ Beautiful Soup 3 目前已经停止开发，我们推荐在现在的项目中使
 
 ::
 
->>> for link in soup.find_all('a'):
-        print(link.get('href'))
+    >>> for link in soup.find_all('a'):
+            print(link.get('href'))
 
-    http://example.com/elsie
-    http://example.com/lacie
-    http://example.com/tillie
+        http://example.com/elsie
+        http://example.com/lacie
+        http://example.com/tillie
 
 从文档中获取所有文字内容：
 
@@ -217,13 +217,13 @@ Beautiful Soup 支持 Python 标准库中的 HTML 解析器，还支持一些第
 下表列出了主要的解析器,以及它们使用方法:
 
 =================   =====================
-解析器                使用方法
+解析器                 使用方法
 =================   =====================
-Python标准库         	BeautifulSoup(markup, "html.parser")
-lxml HTML 解析器 	    BeautifulSoup(markup, "lxml")
+Python标准库           BeautifulSoup(markup, "html.parser")
+lxml HTML 解析器       BeautifulSoup(markup, "lxml")
 lxml XML 解析器 	      BeautifulSoup(markup, ["lxml", "xml"])
-                      BeautifulSoup(markup, "xml")
-html5lib 	            BeautifulSoup(markup, "html5lib")
+                         BeautifulSoup(markup, "xml")
+html5lib              BeautifulSoup(markup, "html5lib")
 =================   =====================
 
 推荐使用 lxml 作为解析器，因为效率更高。在 Python 2.7.3 之前的版本和 Python 3.2.2 之前的版本，必须安装 lxml 或 html5lib，因为那些 Python 版本的标准库中内置的 HTML 解析方法不够稳定。
@@ -554,12 +554,14 @@ BeautifulSoup 对象本身一定会包含子节点，也就是说 <html> 标签�
 
 字符串没有 .contents 属性，因为字符串没有子节点：
 
->>> title_tag.contents[0]
-"The Dormouse's story"
->>>
->>> text = title_tag.contents[0]
->>> text.contents
-AttributeError: 'NavigableString' object has no attribute 'contents'
+::
+
+    >>> title_tag.contents[0]
+    "The Dormouse's story"
+    >>>
+    >>> text = title_tag.contents[0]
+    >>> text.contents
+    AttributeError: 'NavigableString' object has no attribute 'contents'
 
 通过 tag 的 .children 生成器，可以对 tag 的子节点进行循环：
 
