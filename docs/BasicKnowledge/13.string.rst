@@ -126,7 +126,7 @@
 \\'              单引号
 \\"              双引号
 \\a 	           响铃
-\\b 	           退格(Backspace)
+\\b 	           退格（Backspace）
 \\e 	           转义
 \\000 	         空
 \\n 	           换行
@@ -297,7 +297,7 @@ lower
 
 另见：capitalize 、casefold 、swapcase 、title 、upper 。
 
-词首大写
+title
 -----------------------
 
 一个与　lower 相关的方法是　title。它将字符串转换为词首大写，即所有单词的首字母都大写，其他字母都小写。然而，它确定单词边界的方式可能导致结果不合理。
