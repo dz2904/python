@@ -120,6 +120,7 @@ os.path — 路径操作
 **os.path.islink(path)**  如果路径指的是符号链接的目录条目，则返回 True。始终 False 如果 Python 运行时不支持符号链接。
 
 ::
+
     gavin@lib$ ls -l
     lrwxrwxrwx  1 root root      15 Jan 16  2018 libchm.so.1 -> libchm.so.1.0.0
     -rw-r--r--  1 root root   26464 Jan 16  2018 libchm.so.1.0.0
