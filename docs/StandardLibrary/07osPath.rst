@@ -19,7 +19,7 @@ os.path — 路径操作
     >>> os.path.abspath('./python3')
     '/usr/lib/python3'
 
-**os.path.basename(path)**  返回路径名 path 的最后一级的名称。注意下边例子的区别。
+**os.path.basename(path)**  返回路径名 path 的最后一级的名称，可以是路径，也可以是文件名。注意下边例子的区别。
 
 ::
 
@@ -28,18 +28,19 @@ os.path — 路径操作
 
     >>> os.path.basename('/usr/lib/')
     ''
+    >>> os.path.basename('/usr/lib/python3/pp.py')
+    'pp.py'
 
 **os.path.dirname(path)**  返回 path 中的目录名。
 
 ::
 
-    >>> os.path.dirname('/usr/lib/python3')
-    '/usr/lib'
+    >>> os.path.dirname('/usr/lib/python3/pp.py')
+    '/usr/lib/python3'
     >>> os.path.dirname('/usr/lib/')
     '/usr/lib'
     >>> os.path.dirname('/usr/lib')
     '/usr'
-    >>>
 
 **os.path.expanduser(path)**  在 Unix 和 Windows 上，将参数中原始的 ~ 或 ~user 部分用 user 主目录替换。如果扩展失败或者参数 path 不是以 ~ 打头，则返回 path 不变。
 
