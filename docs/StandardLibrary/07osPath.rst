@@ -206,9 +206,7 @@ os.path — 路径操作
     ('', '/usr/lib/python3.6')
 
 
-**os.path.splitext(path)**
-
-Split the pathname path into a pair (root, ext) such that root + ext == path, and ext is empty or begins with a period and contains at most one period. 忽略basename前面的点号；splitext('.cshrc')返回('.cshrc', '')。
+**os.path.splitext(path)**  分离文件的名字和后缀，最好不要带有路径。
 
 ::
 
@@ -216,7 +214,7 @@ Split the pathname path into a pair (root, ext) such that root + ext == path, an
     ('/usr/lib/python3', '.6')
     >>> os.path.splitext('/usr/lib/python3.6/')
     ('/usr/lib/python3.6/', '')
-    >>> os.path.splitext('/usr/lib/python3/')
-    ('/usr/lib/python3/', '')
-    >>> os.path.splitext('/usr/lib/python3')
-    ('/usr/lib/python3', '')
+    >>> os.path.splitext('/usr/lib/python3/pp.py')
+    ('/usr/lib/python3/pp', '.py')
+    >>> os.path.splitext('pp.py')
+    ('pp', '.py')
