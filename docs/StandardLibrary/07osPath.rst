@@ -187,7 +187,7 @@ os.path — 路径操作
 
 **os.path.samestat(stat1, stat2)**  如果统计数据元组 stat1 和 stat2 指向同一文件，则返回 True。
 
-**os.path.split(path)**  将路径名 path 拆分为一个元组对(head, tail)，其中 tail 是路径名的最后一个部分，head 是前面的所有内容。tail 部分不会包含斜杠；如果 path 以斜线结尾，则 tail 将为空。如果 path 中没有斜线，head 将为空。如果 path 为空，head 和 tail 两个都将为空。尾部的斜线会从 head 中去除掉，除非它是根目录（只包含一个或多个斜线的目录）。
+**os.path.split(path)**  分离路径和文件名，最好带有文件全名的路径。将路径名 path 拆分为一个元组对(head, tail)，其中 tail 是路径名的最后一个部分，head 是前面的所有内容。tail 部分不会包含斜杠；如果 path 以斜线结尾，则 tail 将为空。如果 path 中没有斜线，head 将为空。如果 path 为空，head 和 tail 两个都将为空。尾部的斜线会从 head 中去除掉，除非它是根目录（只包含一个或多个斜线的目录）。
 
 ::
 
@@ -195,6 +195,8 @@ os.path — 路径操作
     ('/usr/lib', 'python3.6')
     >>> os.path.split('/usr/lib/python3.6/')
     ('/usr/lib/python3.6', '')
+    >>> os.path.split('/usr/lib/python3.6/pp.py')
+    ('/usr/lib/python3.6', 'pp.py')
 
 **os.path.splitdrive(path)**  将路径名路径拆分为（drive， tail）其中 drive 为挂载点或空字符串。在没有使用驱动器描述符的系统上，drive 将永远是空字符串。
 
