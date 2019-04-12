@@ -55,7 +55,7 @@ Hello World
     message = Text(app, text="Welcome to the Hello world app!")
     app.display()
 
-.. images:: ../images/guizero.02.jpg
+.. image:: ../images/guizero.02.jpg
 
 让我们详细地看一下 Text 小部件的代码：
 
@@ -85,7 +85,7 @@ guizero 中的小部件可以在创建时给出命令。通过使用命令，可
     button = PushButton(app, command=say_hello)
     app.display()
 
-.. images:: ../images/guizero.03.gif
+.. image:: ../images/guizero.03.gif
 
 页面布局
 ===============================
@@ -119,7 +119,7 @@ auto 是创建容器时使用的默认值。所有小部件将按创建顺序上
     text_2 = Text(app, text="below")
     app.display()
 
-.. images:: ../images/guizero.04.jpg
+.. image:: ../images/guizero.04.jpg
 
 对齐布局
 -------------------------------
