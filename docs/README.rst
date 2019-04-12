@@ -15,7 +15,7 @@ Python3 速查
 * 控制流 （ControlFlow）
    * if 语句 ✖
 
-* 标准库 （StandardLibrary）
+* 各种库 （StandardLibrary）
    * os 函数 ❤
 
 * 其它 （Other）
