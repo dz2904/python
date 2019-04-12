@@ -39,7 +39,7 @@ Hello World
 
 保存并运行上边的代码 - 您已经创建了第一个guizero应用程序！如下所示：
 
-.. images:: ../images/guizero.01.jpg
+.. image:: ../images/guizero.01.jpg
 
 添加小部件
 -------------------------------
