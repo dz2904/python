@@ -19,8 +19,8 @@ turtle 是 python 内置的一个比较有趣味的模块，俗称海龟绘图�
 * right() | rt()   # 向右转动
 * speed()   # 移动的速度
 
-|turtle.**forward**(distance)
-|turtle.**fd**(distance)
+| turtle.**forward**(distance)
+| turtle.**fd**(distance)
 distance 一个数字（整数或浮点数）
 
 按海龟的方向，向前移动指定的距离（distance 为正数）。
@@ -38,9 +38,9 @@ distance 一个数字（整数或浮点数）
     >>> turtle.position()
     (-50.00,0.00)
 
-|turtle.**back**(distance)
-|turtle.**bk**(distance)
-|turtle.**backward**(distance)
+| turtle.**back**(distance)
+| turtle.**bk**(distance)
+| turtle.**backward**(distance)
 distance 一个数字
 
 将海龟向后移动指定距离，不会改变海龟的方向。
