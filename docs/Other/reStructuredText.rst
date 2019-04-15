@@ -173,13 +173,11 @@ reStructuredText 是扩展名为 ``.rst`` 的纯文本文件，是轻量级标�
 
 可用的有序列表序号：
 
-.. code-block:: none
-
-    - 阿拉伯数字: 1, 2, 3, ... (无上限)。
-    - 大写字母: A-Z。
-    - 小写字母: a-z。
-    - 大写罗马数字: I, II, III, IV, ..., MMMMCMXCIX (4999)。
-    - 小写罗马数字: i, ii, iii, iv, ..., mmmmcmxcix (4999)。
+- 阿拉伯数字: 1, 2, 3, ... (无上限)。
+- 大写字母: A-Z。
+- 小写字母: a-z。
+- 大写罗马数字: I, II, III, IV, ..., MMMMCMXCIX (4999)。
+- 小写罗马数字: i, ii, iii, iv, ..., mmmmcmxcix (4999)。
 
 有序列表必须为序号添加后缀，下面的形式是被允许的：
 
