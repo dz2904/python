@@ -346,7 +346,7 @@ TextBox 可以跨越容器的整个宽度：
 
     title_box = Box(app, width="fill", align="top", border=True)
 
-.. image:: ../images/guizero.15.jpg
+.. image:: ../images/guizero.16.jpg
 
 可以使用类似的方法在 GUI 的右下角放置“确定”和“取消”按钮。请记住，小部件将按创建顺序堆叠在右侧，因此首先创建取消按钮。
 
@@ -361,7 +361,7 @@ TextBox 可以跨越容器的整个宽度：
 
     app.display()
 
-.. image:: ../images/guizero.16.jpg
+.. image:: ../images/guizero.17.jpg
 
 .. note ::
 
@@ -478,7 +478,7 @@ TextBox 可以跨越容器的整个宽度：
 
     app.display()
 
-.. image:: ../images/guizero.21.jpg
+.. image:: ../images/guizero.22.jpg
 
 
 尺寸
@@ -505,7 +505,7 @@ TextBox 可以跨越容器的整个宽度：
 
     app.display()
 
-.. image:: ../images/guizero.22.jpg
+.. image:: ../images/guizero.23.jpg
 
 =============   ==========   ========   ========
 小部件            字符/像素    fill       描述
