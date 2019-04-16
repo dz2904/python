@@ -565,6 +565,230 @@ Waffle           像素         否          显示自定义尺寸和填充的 n
 * blue
 * yellow
 
+图像
+===============================
+
+Picture 和 PushButton 等小部件允许您在 GUI 中使用图像。
+
+::
+
+    from guizero import App, Picture
+    app = App()
+    picture = Picture(app, image="test.gif")
+    app.display()
+
+
+支持的图像类型（GIF，JPG，PNG等）取决于您安装 guizero 的方式和计算机的设置。
+
+支持的文件类型
+-------------------------------
+
+所有系统都支持 GIF 文件类型，如果安装了 PIL 库，支持显示动画 GIF，如果没有，GIF 将显示为静态图像。
+
+guizero 将使用以下代码告诉您计算机支持哪些文件类型：
+
+::
+
+    from guizero import system_config
+    print(system_config.supported_image_types)
+
+==========   ============   ==================
+操作系统       PIL 不可用      PIL 可用
+==========   ============   ==================
+Windows       GIF, PNG        GIF, 动画 GIF, BMP, ICO, PNG, JPG, TIF
+MacOS         GIF             GIF, 动画 GIF, BMP, ICO, PNG, JPG, TIF
+Linux         GIF, PNG        GIF, 动画 GIF, BMP, ICO, PNG, JPG, TIF
+Raspbian      GIF, PNG        GIF, 动画 GIF, BMP, ICO, PNG, JPG, TIF
+==========   ============   ==================
+
+更改窗口小部件的大小时，图像将更改为适合窗口小部件。如果 PIL 可用，则图像将正确缩放，否则图像将被裁剪。
+
+
+循环和睡眠
+===============================
+
+您可能习惯于编写包含循环或使用 sleep() 命令的程序，但是当您尝试将这些程序与 guizero 一起使用时，它们会导致 GUI 冻结。这是因为 guizero（与几乎所有 GUI 一样）操作事件驱动的编程模型，这可能与您熟悉的编程模型不同。
+
+你的第一个 guizero 程序可能看起来像这样：
+
+::
+
+    from guizero import App
+    app = App("Hello world")
+    app.display()
+
+代码行 app.display() 不仅显示应用程序 - 它进入一个无限的事件循环，它正在观察并等待 GUI 上发生的事件。事件包括用户点击按钮，移动滑块，键入文本框等内容。此行之后写的代码将不会执行，因为事件循环是无限的。
+
+假设您希望 GUI 上的计数器每秒开始计数 1。你可能想写一个这样的程序：
+
+::
+
+    from guizero import App, Text
+    from time import sleep
+
+    app = App("Hello world")
+    text = Text(app, text="1")
+    while True:
+        text.value = int(text.value) + 1
+        sleep(1)
+    app.display()
+
+如果你运行这个程序，你会发现这没有达到预期的效果 - 你的程序崩溃了！这是因为您已通过两种方式阻止了 GUI 的更新：
+
+1. sleep() 命令 - 当你的程序正在睡眠时，GUI 不会更新，你将无法点击任何东西。
+2. while 循环 - 一旦你进入这个循环，你的 GUI 永远不会再次更新，可能会崩溃。
+
+此行为不是 guizero 或 tkinter 中的错误。
+
+您必须以与您可能习惯的方式不同的方式编写基于 GUI 的程序。如果你想重复执行一个动作，你会这样做：
+
+1. 编写一个执行所需操作的函数（在此示例中为 ``counter()`` ）
+2. 设置该函数的回调。您可以安排在给定的毫秒数后重复发生相同的回调（在此示例中为 1000），或者您只能安排一次。
+
+::
+
+    from guizero import App, Text
+
+    # Action you would like to perform
+    def counter():
+        text.value = int(text.value) + 1
+
+    app = App("Hello world")
+    text = Text(app, text="1")
+    text.repeat(1000, counter)  # Schedule call to counter() every 1000ms
+    app.display()
+
+事件
+===============================
+
+警告 - 事件目前是实验性的，可能会遇到问题，API 可能会发生变化。
+
+当用户执行以下操作时，可以将自定义事件添加到 guizero 窗口小部件以调用函数：
+
+* 点击时 - when_clicked
+* 当按下鼠标左键时 - when_left_button_pressed
+* 释放鼠标左键时 - when_left_button_released
+* 按下鼠标右键时 - when_right_button_pressed
+* 释放鼠标右键时 - when_right_button_released
+* 按下某个键时 - when_key_pressed
+* 当一个键被释放时 - when_key_released
+* 当鼠标进入小部件时 - when_mouse_enters
+* 当鼠标离开小部件时 - when_mouse_leaves
+* 将鼠标拖过窗口小部件时 - when_mouse_dragged
+
+通过将事件分配给函数来设置事件：
+
+::
+
+    def clicked():
+        print("clicked")
+
+    widget.when_clicked = clicked
+
+事件数据
+-------------------------------
+
+被调用的函数也可以接受一个参数，并将传递有关发生的事件的数据。
+
+返回的事件数据包括：
+
+* widget - 引发事件的 guizero 小部件
+* tk_event - tkinter 事件对象
+* key - 引发事件的关键
+* x - 事件发生时鼠标相对于窗口小部件的 x 位置
+* y - 事件发生时鼠标相对于窗口小部件的 y 位置
+* display_x - 事件发生时鼠标在显示屏上的 x 位置
+* display_y - 事件发生时鼠标在显示屏上的 y 位置
+
+::
+
+    def clicked(event_data):
+        print("widget clicked = " + event_data.widget)
+        print("mouse position = " + event_data.x + "." + event_data.y)
+
+    widget.when_clicked = clicked
+
+当鼠标悬停在文本框小部件上时，通过更改其背景颜色（bg）突出显示该文本框小部件。
+
+::
+
+    from guizero import App, TextBox
+
+    def highlight():
+        text_box.bg = "lightblue"
+
+    def lowlight():
+        text_box.bg = "white"
+
+    app = App()
+    text_box = TextBox(app)
+
+    # when the mouse enters the textbox
+    text_box.when_mouse_enters = highlight
+    # when the mouse leaves the textbox
+    text_box.when_mouse_leaves = lowlight
+
+    app.display()
+
+
+使用 tkinter
+===============================
+
+如果您是高级用户，则在使用 guizero 时仍可以使用 tkinter。
+
+您可以在程序中无缝地结合使用 guizero 和 tkinter，利用 guizero 的简化语法，同时如果您需要，仍然可以访问 tkinter 中的所有功能。
+
+使用 tkinter 小部件
+-------------------------------
+
+您可以使用 App，Window 和 Box 的 ``add_tk_widget`` 方法将 tk 小部件添加到 guizero 应用程序中。
+
+在这个例子中，我们将 tkinter 小部件 Spinbox 添加到 guizero 应用程序中：
+
+::
+
+    from guizero import App, Text
+    from tkinter import Spinbox
+
+    app = App()
+    text = Text(app, text="A Spinbox widget")
+
+    spinbox = Spinbox(from_=0, to=10)
+    app.add_tk_widget(spinbox)
+
+    a.display()
+
+使用 tkinter 方法
+-------------------------------
+
+每个 guizero 小部件本身都包含一个 tk 小部件 - 您可以通过查看小部件的 guizero 文档页面找到哪个小部件。例如，``TextBox`` 包含一个 tkinter ``Entry`` 对象。您可以使用语法 ``<object_name> .tk`` 访问内部对象。
+
+在这个例子中，我们有 App 和 TextBox 小部件，并且正在使用 tk 小部件配置方法在 TextBox 上方更改鼠标光标。
+
+::
+
+    from guizero import App, TextBox
+    app = App()
+    name = TextBox(app, text="Laura")
+    name.tk.config(cursor="target")
+    app.display()
+
+获得帮助
+===============================
+
+使用 guizero 时可能会遇到问题，因此有一些方法可以帮助您解决问题。
+
+如果您对 guizero 计划有疑问，最好加入社区寻求支持：
+
+* Raspberry Pi 论坛 - 有些人在这些论坛上发布关于 guizero 的问题，社区的其他成员也会提供帮助。 guizero 的创建者定期检查 Python 论坛。
+* Stack Overflow - 技术问题的热门网站
+* Computing at School - 一个有用的教师网站
+
+如果您想阅读 guizero 的指南和资源，请查看 `示例程序`_ 或者 `github 页面`_ 。
+
+.. _示例程序: https://github.com/lawsie/guizero/tree/master/examples
+.. _github 页面: https://github.com/lawsie/guizero
+
 
 .. _小部件:
 
