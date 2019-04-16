@@ -794,3 +794,129 @@ Raspbian      GIF, PNG        GIF, 动画 GIF, BMP, ICO, PNG, JPG, TIF
 
 小部件
 *******************************
+
+App
+===============================
+
+包含 ``tkinter.Tk`` 对象
+
+``__init__(self, title="guizero", width=500, height=500, layout="auto", bgcolor=None, bg=None, visible=True)``
+
+App 对象是使用 guizero 创建的所有 GUI 的基础。它是包含所有其他小部件的主窗口。
+
+.. image:: ../images/guizero.24.png
+
+像这样创建一个 ``App`` 对象：
+
+::
+
+    from guizero import App
+    app = App()
+    app.display()
+
+参数
+-------------------------------
+
+创建 App 对象时，可以指定以下任何参数，所有这些参数都是可选的。在括号中指定参数如下：
+``app = App(bg="red", height=200)``
+
+=========   =========   ============   ======   ========
+参数          数据类型     默认值          强制      描述
+=========   =========   ============   ======   ========
+bg           color        None 	        No        应用程序窗口和其中的小部件的背景颜色。
+height       int          500           No        窗口的高度（以像素为单位）
+layout       string       "auto"        No        小部件是否自行打包 ``"auto"`` 或指定它们在网格上的位置 ``"grid"``
+title        string       "guizero"     No        标题名
+width        int          500           No        窗口的宽度（以像素为单位）
+visible      boolean      True          No        应用程序是否可见
+bgcolor      string       None          No        替换 ``bg`` 参数
+=========   =========   ============   ======   ========
+
+斜体参数仍然可以使用但不推荐使用 - 这意味着您应该停止使用它们，因为它们可能无法在将来版本的 guizero 中使用。
+
+方法
+-------------------------------
+
+您可以在 App 对象上调用以下方法。
+
+=================================   ===========================   ============
+方法                                  数据类型                        描述
+=================================   ===========================   ============
+after(time, command, args=None)      time (int),                    在时间毫秒之后安排单次调用命令。（要重复调用相同的命令，请使用repeat() ）
+                                     command (功能名称),
+                                     args (参数列表)
+cancel(command)                      command (功能名称)              取消对命令的预定
+destroy()                            -                              销毁小部件
+disable()                            -                              禁用应用中的所有小部件，以便无法与之交互
+display()                            -                              在屏幕上显示应用程序。您必须在程序结束时调用此方法以在屏幕上显示应用程序。
+enable()                             -                              启用应用中的所有小部件
+exit_full_screen()                   -                              退出全屏显示
+focus()                              -                              重点关注小部件
+hide()                               -                              从视图中隐藏应用程序窗口。
+on_close(command)                    command (function name)        当用户尝试关闭窗口时调用给定的函数。
+repeat(time, command, args=None)     time (int),                    每隔几毫秒重复一次命令。这对于调度定期调用的函数很有用，例如更新从传感器读取的值。
+                                     command (功能名称),
+                                     args (参数列表)
+show()                               -                              如果先前已隐藏，则显示应用程序窗口
+update()                             -                              强制应用程序自行更新，如果更改未在UI中反映，则非常有用。
+set_full_screen(keybind)             字符串                          将应用程序设置为全屏显示。指定退出全屏的键的选项（默认为'Esc'。）
+set_title(title)                     title (string)                 替换为 title 属性
+bgcolor                              bgcolor (string)               由 bg 属性取代
+=================================   ===========================   ============
+
+斜体参数仍然可以使用但不推荐使用 - 这意味着您应该停止使用它们，因为它们可能无法在将来版本的 guizero 中使用
+
+属性
+-------------------------------
+
+您可以设置并获取以下属性：
+
+============   ==========   ==========
+方法             数据类型      描述
+============   ==========   ==========
+bg              color        窗口的背景颜色
+enabled         boolean      如果应用已启用，则为 True
+height          int          窗户的高度
+font            string       小部件应使用的字体
+full_screen     boolean      该应用程序是否全屏
+layout          string       应用程序使用的布局 ("auto") 或 ("grid")
+title           string       窗口的标题
+text_size       int          文本小部件的大小应该使用
+text_color      color        文本小部件的颜色应该使用
+visible         boolean      如果应用程序可见
+width           int          窗口的宽度
+============   ==========   ==========
+
+将属性称为 ``<name of widget>.property`` 。例如，如果您的 App 对象被称为 app，您将编写 ``app.title`` 。
+
+您可以设置属性（例如 ``app.title =“Hello world”`` ）或获取要使用的属性的值（例如 ``print(app.title)`` ）。
+
+例子
+-------------------------------
+
+1. **创建App对象**
+
+通过调用 App() 构造函数创建一个 App 对象。您应该为对象指定一个名称，以便稍后可以引用它 - 在这种情况下，我们称之为 app。最好保留您为 A​​pp 对象提供的名称非常短，因为您必须使用它来告诉其他小部件应该存储在哪里。
+
+在程序结束时，您必须告诉 app 对象开始显示循环。
+
+::
+
+    from guizero import App
+    app = App(title="My app", height=300, width=200)
+    app.display()
+
+2. **改变标题**
+
+您可以更改 app 对象的标题，如下所示：
+
+::
+
+    from guizero import App
+    app = App(title="My app", height=300, width=200)
+    app.title = "A different title"
+    app.display()
+
+这将显示带有更新标题的应用：
+
+.. image:: ../images/guizero.25.png
