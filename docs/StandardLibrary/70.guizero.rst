@@ -361,7 +361,7 @@ TextBox 可以跨越容器的整个宽度：
 
     app.display()
 
-.. image:: ../images/guizero.17.jpg
+.. image:: ../images/guizero.16.png
 
 .. note ::
 
