@@ -103,22 +103,23 @@
 
 与其他内置类型一样，字典也有方法。字典的方法很有用，但其使用频率可能没有列表和字符串的方法那样高。
 
-===========================   ===============
-方法                              描述
-===========================   ===============
-radiansdict.clear()              删除所有的字典项
-radiansdict.copy()               返回一个字典的浅复制
-radiansdict.fromkeys()           创建一个新字典，其中包含指定的键以及键对应的初始值
-radiansdict.get()                返回指定键的值，如果值不在字典中返回 default 值
-radiansdict.items()              返回一个包含所有字典项的列表
-radiansdict.keys()               返回一个字典中的所以键
-radiansdict.pop()                删除给定键所对应的键-值对，并返回键的值
-radiansdict.popitem()            随机删除字典中的一个键-值对，并返回键的值
-radiansdict.setdefault()         和 get()类似，但如果键不存在于字典中，将会添加键并将值设为 default
-radiansdict.update()             使用一个字典中的项来更新另一个字典
-radiansdict.values()             返回一个由字典中的所有键的值
-===========================   ===============
+==============================   ===============
+方法                                描述
+==============================   ===============
+`radiansdict.clear()`_              删除所有的字典项
+`radiansdict.copy()`_               返回一个字典的浅复制
+`radiansdict.fromkeys()`_           创建一个新字典，其中包含指定的键以及键对应的初始值
+`radiansdict.get()`_                返回指定键的值，如果值不在字典中返回 default 值
+`radiansdict.items()`_              返回一个包含所有字典项的列表
+`radiansdict.keys()`_               返回一个字典中的所以键
+`radiansdict.pop()`_                删除给定键所对应的键-值对，并返回键的值
+`radiansdict.popitem()`_            随机删除字典中的一个键-值对，并返回键的值
+`radiansdict.setdefault()`_         和 get()类似，但如果键不存在于字典中，将会添加键并将值设为 default
+`radiansdict.update()`_             使用一个字典中的项来更新另一个字典
+`radiansdict.values()`_             返回一个由字典中的所有键的值
+==============================   ===============
 
+.. _`radiansdict.clear()`:
 
 clear
 =======================
@@ -163,6 +164,8 @@ clear
 
 在这两个场景中，x 和 y 最初都指向同一个字典。在第一个场景中，我通过将一个空字典赋给 x 来“清空”它。这对 y 没有任何影响，它依然指向原来的字典。这种行为可能正是你想要的，但要删除原来字典的所有元素，必须使用 clear。如果这样做，y 也将是空的，如第二个场景所示。
 
+.. _`radiansdict.copy()`:
+
 copy
 =======================
 
@@ -196,6 +199,8 @@ copy
     >>> dc
     {'names': ['Alfred', 'Bertrand']}
 
+.. _`radiansdict.fromkeys()`:
+
 fromkeys
 =======================
 
@@ -217,6 +222,8 @@ fromkeys
     >>> dict.fromkeys(['name', 'age'], '(unknown)')
     {'age': '(unknown)', 'name': '(unknown)'}
 
+.. _`radiansdict.get()`:
+
 get
 =======================
 
@@ -235,6 +242,8 @@ get
     >>> d.get('name', 'N/A')
     'N/A'
 
+.. _`radiansdict.items()`:
+
 items
 =======================
 
@@ -252,6 +261,8 @@ items
     >>> ('spam', 0) in it
     True
 
+.. _`radiansdict.keys()`:
+
 keys
 =======================
 
@@ -263,6 +274,8 @@ keys
     >>> d.keys()
     dict_keys(['title', 'spam', 'url'])
 
+.. _`radiansdict.pop()`:
+
 pop
 =======================
 
@@ -273,6 +286,8 @@ pop
     1
     >>> d
     {'y': 2}
+
+.. _`radiansdict.popitem()`:
 
 popitem
 =======================
@@ -288,6 +303,8 @@ popitem
     {'spam': 0, 'title': 'Python Web Site'}
 
 如果希望方法 popitem 以可预测的顺序弹出字典项，请参阅模块 collections 中的 OrderedDict 类。
+
+.. _`radiansdict.setdefault()`:
 
 setdefault
 =======================
@@ -308,6 +325,8 @@ setdefault
     >>> d
     {'name': 'Gumby', 'age': None}
 
+.. _`radiansdict.update()`:
+
 update
 =======================
 
@@ -327,6 +346,8 @@ update
     'Mar 14 22:09:15 MET 2016', 'title': 'Python Language Website'}
 
 可像调用本章前面讨论的函数 dict（类型构造函数）那样调用方法 update。这意味着调用 update 时，可向它提供一个映射、一个由键-值对组成的序列（或其他可迭代对象）或关键字参数。
+
+.. _`radiansdict.values()`:
 
 values
 =======================
