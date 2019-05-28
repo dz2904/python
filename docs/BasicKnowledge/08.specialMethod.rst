@@ -76,8 +76,8 @@ __del__( self )                                销毁实例时调用
 =====================   ===========
 方法                      描述
 =====================   ===========
-__ bool__( self )         为真值测试返回 False 或 True
-__ hash__( self )         计算整数的散列索引
+\__ bool__( self )         为真值测试返回 False 或 True
+\__ hash__( self )         计算整数的散列索引
 =====================   ===========
 
 对象可以实现一个或多个关系运算符（``<`` 、 ``>`` 、 ``<=`` 、 ``>=`` 和 ``!=`` ）。这些方法均接受两个参数，而且支持返回任意类型的对象，包括布尔值、列表或任意其他 Python 类型。例如，有数学包可能使用该方法对两个矩阵的元素进行比较，并返回矩阵结果。如果无法进行比较，这些函数也会引发异常。下表中列出了用于比较运算符的特殊方法。
@@ -85,12 +85,12 @@ __ hash__( self )         计算整数的散列索引
 ============================   ===========
 方法                              结果
 ============================   ===========
-__ lt__( self , other )          self < other
-__ le__( self , other )          self <= other
-__ gt__( self , other )          self > other
-__ ge__( self , other )          self >= other
-__ eq__( self , other )          self == other
-__ ne__( self , other )          self != other
+\__ lt__( self , other )          self < other
+\__ le__( self , other )          self <= other
+\__ gt__( self , other )          self > other
+\__ ge__( self , other )          self >= other
+\__ eq__( self , other )          self == other
+\__ ne__( self , other )          self != other
 ============================   ===========
 
 对象不必实现表中的所有操作。然而，如果要使用 ``==`` 比较对象或者使用对象作为字典键，应该定义 ``__eq__()`` 方法。如果要为对象排序或者使用诸如 ``min()`` 或 ``max()`` 之类的函数，必须要至少定义 ``__lt__()`` 方法。
@@ -104,8 +104,8 @@ __ ne__( self , other )          self != other
 =====================================   ===========
 方法                                        结果
 =====================================   ===========
-__ instancecheck__( cls , object )         isinstance( object , cls )
-__ subclasscheck__( cls , sub )            issubclass( sub , cls )
+\__ instancecheck__( cls , object )         isinstance( object , cls )
+\__ subclasscheck__( cls , sub )            issubclass( sub , cls )
 =====================================   ===========
 
 
@@ -117,10 +117,10 @@ __ subclasscheck__( cls , sub )            issubclass( sub , cls )
 =====================================   ===========
 方法                                       描述
 =====================================   ===========
-__ getattribute__( self , name )          返回属性 self.name
-__getattr__( self , name )                如果通过常规属性查找未找到属性，返回属性 self.name，无法计算属性则引发 AttributeError 异常
-__setattr__( self , name , value )        设置属性 self.name = value，覆盖默认值
-__delattr__( self , name )                删除属性 self.name
+\__ getattribute__( self , name )          返回属性 self.name
+\__getattr__( self , name )                如果通过常规属性查找未找到属性，返回属性 self.name，无法计算属性则引发 AttributeError 异常
+\__setattr__( self , name , value )        设置属性 self.name = value，覆盖默认值
+\__delattr__( self , name )                删除属性 self.name
 =====================================   ===========
 
 访问属性时始终会调用 ``__getattribute__()`` 方法。如果找到属性则返回之，否则调用 ``__getattr__()`` 方法。 ``__getattr__()`` 方法的默认行为是引发 ``AttributeError`` 异常。设置属性时始终会调用 ``__setattr__()`` 方法，而删除属性时始终会调用 ``__delattr__()`` 方法。
@@ -133,9 +133,9 @@ __delattr__( self , name )                删除属性 self.name
 =====================================   ===========
 方法                                       描述
 =====================================   ===========
-__get__( self , instance , cls )           返回一个属性值，否则引发 AttributeError 异常
-__set__( self , instance , value )         将属性设为 value
-__delete__( self , instance )              删除属性
+\__get__( self , instance , cls )           返回一个属性值，否则引发 AttributeError 异常
+\__set__( self , instance , value )         将属性设为 value
+\__delete__( self , instance )              删除属性
 =====================================   ===========
 
 描述符的 ``__get__()`` 、 ``__set__()`` 和 ``__delete__()`` 方法用于与类和类型的 ``__getattribute__()`` 、 ``__setattr__()`` 和 ``__delattr__()`` 方法进行交互。如果在用户自定义类的主体中放入一个描述符对象的实例，这种交互就会发生。在这种情况下，对于描述符属性的所有访问都将显式地调用描述符对象本身的相应方法。描述符一般用于实现对象系统的底层功能，包括绑定和非绑定方法、类方法、静态方法和特性。第7章中给出了一些更加深入的例子。
@@ -148,11 +148,11 @@ __delete__( self , instance )              删除属性
 =====================================   ===========
 方法                                       描述
 =====================================   ===========
-__len__( self )                           返回 self 的长度
-__getitem__( self , key )                 返回 self [ key ]
-__setitem__( self , key , value )         设置 self [ key ] = value
-__delitem__( self , key )                 删除 self [ key ]
-__contains__( self , obj )                如果 obj 在 self 中，则返回 True，否则返回 False
+\__len__( self )                           返回 self 的长度
+\__getitem__( self , key )                 返回 self [ key ]
+\__setitem__( self , key , value )         设置 self [ key ] = value
+\__delitem__( self , key )                 删除 self [ key ]
+\__contains__( self , obj )                如果 obj 在 self 中，则返回 True，否则返回 False
 =====================================   ===========
 
 例如：
