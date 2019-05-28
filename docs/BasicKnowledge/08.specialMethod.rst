@@ -274,7 +274,7 @@ __ixor__( self , other )                            self ^= other
 __ilshift__( self , other )                         self <<= other
 __irshift__( self , other )                         self >>= other
 __neg__( self )                                     – self
-__pos__( self )                                     + self
+__pos__( self )                                     \+ self
 __abs__( self )                                     abs( self )
 __invert__( self )                                  ~ self
 __int__( self )                                     int( self )
