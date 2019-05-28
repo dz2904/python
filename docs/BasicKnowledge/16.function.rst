@@ -1,0 +1,1210 @@
+函数
+#######################
+
+为了便于维护和更好地实现模块化，大量的程序被分解为多个函数。Python 不仅简化了函数的定义过程，而且还大量引入了其他函数式编程语言中的优秀特性。
+
+定义函数
+***********************
+
+使用 def 语句可定义函数：
+
+.. highlight:: none
+
+::
+
+    def add(x,y):
+    　　return x + y
+
+函数体就是在调用函数时所执行的一系列语句。调用函数的方法是在函数名称后面加上函数参数的元组，如 a = add(3, 4)。参数的顺序和数量必须与函数定义匹配，否则会引发 ``TypeError`` 异常。
+
+函数的参数可以拥有默认值，方法是在函数定义中为参数赋值，例如：
+
+::
+
+    def split(line,delimiter=','):
+    　　statements
+
+如果函数定义中存在带有默认值的参数，该参数及其所有后续参数都是可选的。如果未给函数定义中的所有可选参数赋值，就会引发 ``SyntaxError`` 异常。
+
+默认参数值总是被设为函数定义时作为值传入的对象。示例如下：
+
+::
+
+    a = 10
+    def foo(x=a):
+    　　return x
+
+    a = 5　　　　　　 # 给'a'重新赋值
+    foo()　　　　　　 # 返回 10（默认值没有变）
+
+另外，使用可变对象作为默认值可能导致意料之外的结果：
+
+::
+
+    def foo(x, items=[]):
+    　　items.append(x)
+    　　return items
+    foo(1)　　　　# 返回 [1]
+    foo(2)　　　　# 返回 [1, 2]
+    foo(3)　　　　# 返回 [1, 2, 3]
+
+注意，默认参数保留了前面调用时进行的修改。为了防止出现这种情况，最好使用 ``None`` 值，并在后面加上检查代码：
+
+::
+
+    def foo(x, items=None):
+    　　if items is None:
+    　　　　items = []
+    　　items.append(x)
+    　　return items
+
+如果给最后一个参数名加上星号（*），函数就可以接受任意数量的参数：
+
+::
+
+    def fprintf(file, fmt, *args):
+    　　file.write(fmt % args)
+
+    # 使用 fprintf。args 被赋值为 (42,"hello world", 3.45)
+    fprintf(out,"%d %s %f", 42, "hello world", 3.45)
+
+在这个例子中，所有余下的参数都作为一个元组放入 args 变量。要把元组 args 当作参数传递给函数，可以在函数调用中使用 *args 语法：
+
+::
+
+    def printf(fmt, *args):
+    　　　　# 调用另一个函数，并把 args 传递给它
+    　　　　fprintf(sys.stdout, fmt, *args)
+
+提供函数参数还有一种方式，即显式地命名每个参数并为其指定一个值，这称为关键字参数。如下所示：
+
+::
+
+    def foo(w,x,y,z):
+    　　statements
+
+    # 关键字参数调用
+    foo(x=3, y=22, w='hello', z=[1,2])
+
+使用关键字参数时，参数的顺序无关紧要。但除非提供了默认值，否则必须显式地命名所有必需的函数参数。如果省略任何必需的参数，或者某个关键字的名称与函数定义中的参数名称不匹配，就会引发 ``TypeError`` 异常。另外，由于所有 Python 函数都可以使用关键字调用的方式进行调用，因此，在定义函数的时候，使用这种描述性的参数名称通常是个好主意。
+
+位置参数和关键字参数可以出现在同一次函数调用中，前提是所有位置参数必须先出现，给所有非可选参数提供值，并且不能多次定义参数值。例如：
+
+::
+
+    foo('hello', 3, z=[1,2], y=22)
+    foo(3, 22, w='hello', z=[1,2])　　 # TypeError。w 参数具有多个值
+
+如果函数定义的最后一个参数以 ``**`` 开头，所有额外的关键字参数（与任意其他参数名称都不匹配的参数）都可以放入一个字典中，并把这个字典传递给函数。如果要编写的函数需接受大量可扩充的配置选项作为参数，但列出这些参数又显得过于笨重，那么使用 ``**`` 开头的参数就很有用。例如：
+
+::
+
+    def make_table(data, **parms):
+    　　# 从 parms（字典）获取配置参数
+    　　fgcolor = parms.pop("fgcolor","black")
+    　　bgcolor = parms.pop("bgcolor","white")
+    　　width = parms.pop("width",None)
+    　　...
+    　　# 无更多选项
+    　　if parms:
+    　　　　 raise TypeError("Unsupported configuration options %s" % list(parms))
+
+    make_table(items, fgcolor="black", bgcolor="white", border=1,
+    　　　　　　　　　borderstyle="grooved", cellpadding=10,
+    　　　　　　　　　width=400)
+
+关键字参数和可变长度参数列表可以一起使用，只要 ``**`` 参数出现在最后即可：
+
+::
+
+    # 接受数量不定的位置或关键字参数
+    def spam(*args, **kwargs):
+    　　# args 是一个位置参数的元组
+    　　# kwargs 是一个关键字参数的字典
+    　　...
+
+还可以使用 ``**kwargs`` 语法把关键字参数传递给另一个函数：
+
+::
+
+    def callfunc(*args, **kwargs):
+    　　func(*args,**kwargs)
+
+``*args`` 和 ``**kwargs`` 通常用来为其他函数编写包装器和代理。例如，callfunc() 函数接受参数的任意组合，并把它们传递给 func() 函数。
+
+参数传递与返回值
+***********************
+
+调用函数时，函数参数仅仅是指代传入对象的名称。参数传递的基本语义和其他编程语言中已知的方式不完全相同，如“按值传递”或“按引用传递”。例如，如果传递不可变的值，参数看起来实际是按值传递的。但如果传递可变对象（如列表或字典）给函数，然后再修改此可变对象，这些改动将反映在原始对象中。例如：
+
+::
+
+    a = [1, 2, 3, 4, 5]
+    def square(items):
+    　　for i,x in enumerate(items):
+    　　　　items[i] = x * x　　 # 原地修改 item 中的元素
+
+    square(a)　　　# a 变为[1, 4, 9, 16, 25]
+
+像这样悄悄修改其输入值或者程序其他部分的函数被认为具有副作用。一般来说，最好避免使用这种编程风格，因为随着程序的规模和复杂程度不断增加，这类函数会成为各种奇怪编程错误的根源（例如，如果函数具有副作用，只看函数调用是无法明显发现的）。在涉及线程和并发的程序中，这类函数的交互能力很差，因为通常需要使用锁定来防止副作用的影响。
+
+``return`` 语句从函数返回一个值。如果没有指定任何值或者省略 ``return`` 语句，就会返回 ``None`` 对象。如果返回值有多个，可以把它们放在一个元组中：
+
+::
+
+    def factor(a):
+    　　d = 2
+    　　while (d <= (a / 2)):
+    　　　　if ((a / d) * d == a):
+    　　　　　　　return ((a / d), d)
+    　　　　d = d + 1
+    　　return (a, 1)
+
+可将元组中的多个返回值赋给单独的变量：
+
+::
+
+    x, y = factor(1243)　 # 将返回值放在 x 和 y 中
+
+    (x, y) = factor(1243) # 另一种赋值形式，效果相同
+
+
+作用域规则
+***********************
+
+系统每次执行一个函数时，就会创建新的局部命名空间。该命名空间代表一个局部环境，其中包含函数参数的名称和在函数体内赋值的变量名称。解析这些名称时，解释器将首先搜索局部命名空间。如果没有找到匹配的名称，它就会搜索全局命名空间。函数的全局命名空间始终是定义该函数的模块。如果解释器在全局命名空间中也找不到匹配值，最终会检查内置命名空间。如果仍然找不到，就会引发 ``NameError`` 异常。
+
+命名空间的一个特别之处，是在函数中对全局变量的操作。例如，请看以下代码：
+
+::
+
+    a = 42
+    def foo():
+    　　a = 13
+    foo()
+    # a仍然是42
+
+执行这段代码时，尽管看上去我们在函数 foo 中修改了变量 a 的值，但 a 的返回值仍然是 42。当变量在函数中被赋值时，这些变量始终被绑定到该函数的局部命名空间中，因此函数体中的变量 a 引用的是一个包含值 13 的全新对象，而不是外面的变量。使用 global 语句可以改变这种行为。global 语句明确地将变量名称声明为属于全局命名空间，只有在需要修改全局变量时才必须使用它。这条语句可以放在函数体中的任意位置，并可重复使用。例如：
+
+::
+
+    a = 42
+    b = 37
+    def foo():
+    　　global a # 'a'位于全局命名空间中
+    　　a = 13
+    　　b = 0
+    foo()
+    # a现在已变为13。b仍然为37
+
+Python 支持嵌套的函数定义，例如：
+
+::
+
+    def countdown(start):
+    　 n = start
+    　 def display(): # 嵌套的函数定义
+    　　　 print('T-minus %d' % n)
+    　 while n > 0:
+    　　　 display()
+    　　　 n -= 1
+
+嵌套函数中的变量是由静态作用域（lexical scoping）限定的。也就是说，解释器在解析名称时首先检查局部作用域，然后由内而外一层层检查外部嵌套函数定义的作用域。如果找不到匹配，那么和之前一样，将搜索全局命名空间和内置命名空间。因此，内部函数不能给定义在外部函数中的局部变量重新赋值。例如，下面这段代码是不起作用的：
+
+::
+
+    def countdown(start):
+    　 n = start
+    　 def display():
+    　　　 print('T-minus %d' % n)
+    　 def decrement():
+    　　　 n -= 1　　　　　　　# 在 Python 2 中无效
+    　 while n > 0:
+    　　　　display()
+    　　　　decrement()
+
+在 Python 2 中，解决这种问题的方法是把要修改的值放在列表或字典中。在 Python 3 中，可以把 n 声明为 nonlocal，如下所示：
+
+::
+
+    def countdown(start):
+    　 n = start
+    def display():
+    　　　 print('T-minus %d' % n)
+    　 def decrement():
+    　　　 nonlocal n　　# 绑定到外部的 n(仅在 Python 3 中使用)
+    　　　 n -= 1
+    　 while n > 0:
+    　　　　display()
+    　　　　decrement()
+
+nonlocal 声明不会把名称绑定到当前调用栈下方的任意函数中定义的局部变量，即动态作用域（dynamic scope）中。因此，如果从 Perl 转而学习 Python 语言，要注意 nonlocal 语句和 Perl 的 local 变量声明不同。
+
+如果使用局部变量时还没给它赋值，就会引发 ``UnboundLocalError`` 异常，下面的例子演示了可能出现该问题的情况：
+
+::
+
+    i = 0
+    def foo():
+    　　i = i + 1　　# 导致 UnboundLocalError 异常
+    　　print(i)
+
+在这个函数中，i 被定义为一个局部变量（因为它在函数内赋值，而且没有使用 global 语句）。但是，赋值语句 ``i = i + 1`` 会尝试在给 i 局部赋值之前读取它的值。尽管这个例子中存在一个全局变量 i，但它不会给局部变量 i 提供值。函数在定义时就确定了变量是局部的还是全局的，而且在函数中不能突然改变它们的作用域。例如，在前面的代码中，表达式 ``i + 1`` 中的 i 引用的不是全局变量 i，而 ``print(i)`` 中的 i 引用的是前一条语句中创建的局部变量 i。
+
+
+作为对象与闭包的函数
+***********************
+
+函数在 Python 中是第一类对象。也就是说可以把它们当作参数传递给其他函数，放在数据结构中，以及作为函数的返回结果。下面的例子给出了一个函数，它接受另一个函数作为输入并调用它。
+
+::
+
+    # foo.py
+    def callf(func):
+    　 return func()
+
+下面这个例子使用了上面的函数：
+
+::
+
+    >>> import foo
+    >>> def helloworld():
+    ...　　 return 'Hello World'
+    ...
+    >>> foo.callf(helloworld)　　 # 传递一个函数作为参数
+    'Hello World'
+    >>>
+
+把函数当作数据处理时，它将隐式地携带与定义该函数的周围环境相关的信息。这将影响到函数中自由变量的绑定方式。例如，考虑下面这个修改后的 foo.py，它现在包含了一个变量定义：
+
+::
+
+    # foo.py
+    x = 42
+    def callf(func):
+    　 return func()
+
+现在观察这个例子的行为：
+
+::
+
+    >>> import foo
+    >>> x = 37
+    >>> def helloworld():
+    ...　　 return "Hello World. x is %d" % x
+    ...
+    >>> foo.callf(helloworld)　　　# 传递一个函数作为参数
+    'Hello World. x is 37'
+    >>>
+
+在这个例子中，注意函数 helloworld() 使用的 x 的值是在与它相同的环境中定义的。因此，即使 foo.py 中也定义了一个变量 x，而且这里也是实际调用 helloworld() 函数的地方，但 x 的值与 helloworld() 函数执行时使用的 x 不同。
+
+将组成函数的语句和这些语句的执行环境打包在一起时，得到的对象称为闭包。事实上所有函数都拥有一个指向了定义该函数的全局命名空间的 ``__globals__`` 属性，这也解释了前面例子的行为。这始终对应于定义函数的闭包模块。对于前面的例子，可以看到如下内容：
+
+::
+
+    >>> helloworld.__globals__
+    {'__builtins__': <module '__builtin__' (built-in)>,
+     'helloworld': <function helloworld at 0x7bb30>,
+     'x': 37, '__name__': '__main__', '__doc__': None
+     'foo': <module 'foo' from 'foo.py'>}
+    >>>
+
+使用嵌套函数时，闭包将捕捉内部函数执行所需的整个环境，例如：
+
+::
+
+    import foo
+    def bar():
+    　　x = 13
+    　　def helloworld():
+    　　　　return "Hello World. x is %d" % x
+    　　foo.callf(helloworld)　　　　　# 返回'Hello World, x is 13'
+
+如果要编写惰性求值（lazy evaluation）或延迟求值的代码，闭包和嵌套函数特别有用，例如：
+
+::
+
+    from urllib import urlopen
+    # from urllib.request import urlopen (Python 3)
+    def page(url):
+    　　def get():
+    　　　　return urlopen(url).read()
+    　　return get
+
+在这个例子中，page() 函数实际上并不执行任何有意义的计算。相反，它只会创建和返回函数 get()，调用该函数时会获取 Web 页面的内容。因此，get() 函数中执行的计算实际上延迟到了程序后面对 get() 求值的时候。例如：
+
+::
+
+    >>> python = page("http://www.python.org")
+    >>> jython = page("http://www.jython.org")
+    >>> python
+    <function get at 0x95d5f0>
+    >>> jython
+    <function get at 0x9735f0>
+    >>> pydata = python()　　　　 # 获取http://www.python.org
+    >>> jydata = jython()　　　　 # 获取http://www.jython.org
+    >>>
+
+在这个例子中，两个变量 python 和 jython 实际上是 get() 函数的两个版本。即使创建这些值的 page() 函数不再执行，这两个 get() 函数也将隐式地携带在创建 get() 函数时定义的外部变量的值。因此，执行 get() 函数时，它会使用原来提供给 page() 函数的 url 值调用 urlopen(url)。只需很少的检查工作，就能看到闭包中变量的内容，例如：
+
+::
+
+    >>> python.__closure__
+    (<cell at 0x67f50: str object at 0x69230>,)
+    >>> python.__closure__[0].cell_contents
+    'http://www.python.org'
+    >>> jython.__closure__[0].cell_contents
+    'http://www.jython.org'
+    >>>
+
+如果需要在一系列函数调用中保持某个状态，使用闭包是一种非常高效的方式。例如，考虑下面运行了一个简单计数器的代码：
+
+::
+
+    def countdown(n):
+    　　def next():
+    　　　　nonlocal n
+    　　　　r = n
+    　　　　n -= 1
+    　　　　return r
+    　　return next
+
+    # 用例
+    next = countdown(10)
+    while True:
+    　　v = next()　　　　# 获得下一个值
+    　　if not v: break
+
+在这段代码中，闭包用于保存内部计数器的值 n。每次调用内部函数 next() 时，它都更新并返回这个计数器变量的前一个值。不熟悉闭包的程序员可能会使用下面这样一个类来实现类似的功能：
+
+::
+
+    class Countdown(object):
+    　　def __init__(self,n):
+    　　　　self.n = n
+    　　def next(self):
+    　　　　r = self.n
+    　　　　self.n -= 1
+    　　　　return r
+
+    # 示例用法
+    c = Countdown(10)
+    while True:
+    　　v = c.next()　　　 # 获得下一个值
+    　　if not v: break
+
+但是，如果增加 Countdown() 函数的起始值，并执行一次简单的定时基准测试，就会发现使用闭包的版本运行速度要快得多（在作者的计算机上进行测试的结果是快了大约 50%）。
+
+闭包会捕捉内部函数的环境，因此还可用于要包装现有函数，以便往应用程序中增加额外功能。接下来介绍这一点。
+
+
+装饰器
+***********************
+
+装饰器是一个函数，其主要用途是包装另一个函数或类。这种包装的首要目的是光明正大地修改或增强被包装对象的行为。语法上使用 特殊符号 ``@`` 表示装饰器，如下所示：
+
+::
+
+    @trace
+    def square(x):
+    　　 return x*x
+
+上面的代码是下面代码的简化：
+
+::
+
+    def square(x):
+    　　return x*x
+    square = trace(square)
+
+这个例子中定义了函数 square()。但在定义之后，函数对象本身就立即被传递给函数 trace()，后者返回一个对象替代原始的 square。现在，让我们看一下 trace 的实现，从而解释这样做的用处：
+
+::
+
+    enable_tracing = True
+    if enable_tracing:
+    　　debug_log = open("debug.log","w")
+
+    def trace(func):
+    　　if enable_tracing:
+    　　　　def callf(*args,**kwargs):
+    　　　　　　debug_log.write("Calling %s: %s, %s\n" %
+    　　　　　　　　　　　　　　 (func.__name__, args, kwargs))
+    　　　　　　r = func(*args,**kwargs)
+    　　　　　　debug_log.write("%s returned %s\n" % (func.__name, r))
+    　　　　　　return r
+    　　　　return callf
+    　　else:
+    　　　　return func
+
+在这段代码中，trace() 创建了一个包装器函数，它会写入一些调试输出，然后调用原始函数对象。因此如果调用 square() 函数，看到的将是包装器中 write() 方法的输出。trace() 函数返回的函数 callf 是一个闭包，用于替换原始的函数。关于这种实现的一个有趣方面是，跟踪功能本身只能像上面这样使用全局变量 enable_tracing 来启用。如果把这个变量置为 False，trace() 装饰器只是返回未修改的原始函数。因此，禁用跟踪时，使用装饰器不会增加性能负担。
+
+使用装饰器时，它们必须出现在函数或类定义之前的单独行上。可以同时使用多个装饰器，例如：
+
+::
+
+    @foo
+    @bar
+    @spam
+    def grok(x):
+    　　pass
+
+在这个例子中，装饰器将按照它们出现的先后顺序应用，结果等同于：
+
+::
+
+    def grok(x):
+    　　pass
+    grok = foo(bar(spam(grok)))
+
+装饰器也可以接受参数，例如：
+
+::
+
+    @eventhandler('BUTTON')
+    def handle_button(msg):
+    　　 ...
+    @eventhandler('RESET')
+    def handle_reset(msg):
+    　　 ...
+
+如果提供参数，装饰器的语义如下所示：
+
+::
+
+    def handle_button(msg):
+    　　 ...
+    temp = eventhandler('BUTTON')　　　　　　# 使用提供的参数调用装饰器
+    handle_button = temp(handle_button)　　 # 调用装饰器返回的函数
+
+在这个例子中，装饰器函数只接受带有 ``@`` 描述符的参数。它接着返回一个函数，这个函数在调用的时候以一个函数作为参数。下面举一个例子：
+
+::
+
+    # 事件处理程序装饰器
+    event_handlers = { }
+    def eventhandler(event):
+    　　 def register_function(f):
+    　　　　　event_handlers[event] = f
+    　　　　　return f
+    　　 return register_function
+
+装饰器也可以应用于类定义，例如：
+
+::
+
+    @foo
+    class Bar(object):
+    　　def __init__(self,x):
+    　　　　self.x = x
+    　　def spam(self):
+    　　　　statements
+
+对于类装饰器，应该让装饰器函数始终返回类对象作为结果。需要使用原始类定义的代码可能要直接引用类成员，如 Bar.spam。如果装饰器函数 foo() 返回一个函数，这种引用就是不正确的。
+
+装饰器与函数其他方面的交互行为（如递归、文档字符串和函数属性）有些怪异。本章稍后将会讨论这些问题。
+
+生成器与 yield
+***********************
+
+函数使用 yield 关键字可以定义生成器对象。生成器是一个函数，它生成一个值的序列，以便在迭代中使用，例如：
+
+::
+
+    def countdown(n):
+    　　 print("Counting down from %d" % n)
+    　　 while n > 0:
+    　　　　　yield n
+    　　　　　n -= 1
+    　　 return
+
+如果调用该函数，就会发现其中的代码不会开始执行，例如：
+
+::
+
+    >>> c = countdown(10)
+    >>>
+
+相反它会返回一个生成器对象。接着，该生成器对象就会在 ``__next__()`` 被调用时执行函数。例如：
+
+::
+
+    >>> c.__next__()
+    Counting down from 10
+    10
+    >>> c.next()
+    9
+
+调用 ``__next__()`` 时，生成器函数将开始执行语句，直至遇到 yield 语句为止。yield 语句在函数执行停止的地方生成一个结果，直到再次调用 ``__next__()``。然后继续执行 yield 之后的语句。
+
+通常不会在生成器上直接调用 ``__next__()`` 方法，而是通过 for 语句、sum() 或一些消耗序列的其他操作使用生成器。例如：
+
+::
+
+    for n in countdown(10):
+      statements
+    a = sum(countdown(10))
+
+生成器函数完成的标志是返回或引发 ``StopIteration`` 异常，这标志着迭代的结束。如果生成器在完成时返回 ``None`` 之外的值，都是不合法的。
+
+生成器使用时存在一个棘手的问题，即生成器函数仅被部分消耗。例如，请看以下代码：
+
+::
+
+    for n in countdown(10):
+    　　 if n == 2: break
+    　　 statements
+
+在这个例子中，通过调用 break 退出 for 循环，而相关的生成器也没有全部完成。为了处理这种情况，生成器对象提供方法 close() 标识关闭。不再使用或删除生成器时，就会调用 close() 方法。通常不必手动调用 close() 方法，但也可以这么做，例如：
+
+::
+
+    >>> c = countdown(10)
+    >>> c.next()
+    Counting down from 10
+    10
+    >>> c.next()
+    9
+    >>> c.close()
+    >>> c.next()
+    Traceback (most recent call last):
+    　File "<stdin>", line 1, in <module>
+    StopIteration
+    >>>
+
+在生成器函数内部，在 yield 语句上出现 ``GeneratorExit`` 异常时就会调用 close() 方法。也可以选择捕捉这个异常，以便执行清理操作。
+
+::
+
+    def countdown(n):
+    　　print("Counting down from %d" % n)
+    　　try:
+    　　　　 while n > 0:
+    　　　　　　　yield n
+    　　　　　　　n = n - 1
+    　　except GeneratorExit:
+    　　　　 print("Only made it to %d" % n)
+
+虽然可以捕捉 ``GeneratorExit`` 异常，但对于生成器函数而言，使用 yield 语句处理异常并生成另一个输出值是不合法的。另外，如果程序当前正在对生成器进行迭代，不应通过另一个的执行线程或从信号处理程序异步调用该生成器上的 close() 方法。
+
+协程与 yield 表达式
+***********************
+
+在函数内，yield 语句还可以作为表达式使用，出现在赋值运算符的右边，例如：
+
+::
+
+    def receiver():
+    　　print("Ready to receive")
+    　　while True:
+    　　　　　n = (yield)
+    　　　　　print("Got %s" % n)
+
+以这种方式使用 yield 语句的函数称为协程，向函数发送值时函数将执行。它的行为也十分类似于生成器，例如：
+
+::
+
+    >>> r = receiver()
+    >>> r.__next__()　# 向前执行到第一条 yield 语句
+    Ready to receive
+    >>> r.send(1)
+    Got 1
+    >>> r.send(2)
+    Got 2
+    >>> r.send("Hello")
+    Got Hello
+    >>>
+
+在这个例子中，一开始调用 ``__next__()`` 是必不可少的，这样协程才能执行第一个 yield 表达式之前的语句。这时，协程会挂起，等待相关生成器对象 r 的 send() 方法给它发送一个值。传递给 send() 的值由协程中的 (yield) 表达式返回。接收到值后，协程就会执行语句，直至遇到下一条 yield 语句。
+
+在协程中需要首先调用 ``__next__()`` 这件事情很容易被忽略，这经常成为错误出现的原因。因此，建议使用一个能自动完成该步骤的装饰器来包装协程。
+
+::
+
+    def coroutine(func):
+    　 def start(*args,**kwargs):
+    　　　　g = func(*args,**kwargs)
+    　　　　g.next()
+    　　　　return g
+    　 return start
+
+使用这个装饰器就可以像下面这样编写和使用协程：
+
+::
+
+    @coroutine
+    def receiver():
+    　　print("Ready to receive")
+    　　while True:
+    　　　　　n = (yield)
+    　　　　　print("Got %s" % n)
+    # 示例用法
+    r = receiver()
+    r.send("Hello World")　　　 # 注意：无需初始调用 .next() 方法
+
+协程一般会不断地执行下去，除非被显式关闭或者自己退出。像下面这样使用方法 close() 可以关闭输入值的流：
+
+::
+
+    >>> r.close()
+    >>> r.send(4)
+    Traceback (most recent call last):
+    　File "<stdin>", line 1, in <module>
+    StopIteration
+
+关闭后，如果继续给协程发送值，就会引发 ``StopIteration`` 异常。正如前面关于生成器的内容中讲到的那样，close() 操作将在协程内部引发 ``GeneratorExit`` 异常，例如：
+
+::
+
+    def receiver():
+    　　print("Ready to receive")
+    　　try:
+    　　　　while True:
+    　　　　　　n = (yield)
+    　　　　　　print("Got %s" % n)
+    　　except GeneratorExit:
+    　　　　print("Receiver done")
+
+可以使用 throw(exctype [, value [, tb]]) 方法在协程内部引发异常，其中 exctype 是指异常类型，value 是指异常的值，而 tb 是指跟踪对象。例如：
+
+::
+
+    >>> r.throw(RuntimeError,"You're hosed!")
+    Traceback (most recent call last):
+    　File "<stdin>", line 1, in <module>
+    　File "<stdin>", line 4, in receiver
+    RuntimeError: You're hosed!
+
+以这种方式引发的异常将在协程中当前执行的 yield 语句处出现。协程可以选择捕捉异常并以正确方式处理它们。使用 throw() 方法作为给协程的异步信号并不安全——永远都不应该通过单独的执行线程或信号处理程序调用这个方法。
+
+如果 yield 表达式中提供了值，协程可以使用 yield 语句同时接收和发出返回值，例如：
+
+::
+
+    def line_splitter(delimiter=None):
+    　　print("Ready to split")
+    　　result = None
+    　　while True:
+    　　　　line = (yield result)
+    　　　　result = line.split(delimiter)
+
+在这个例子中，我们使用协程的方式与前面相同。但是，现在调用 send() 方法也会生成一个结果，例如：
+
+::
+
+    >>> s = line_splitter(",")
+    >>> s.next()
+    Ready to split
+    >>> s.send("A,B,C")
+    ['A', 'B', 'C' ]
+    >>> s.send("100,200,300")
+    ['100', '200', '300']
+    >>>
+
+理解这个例子中的先后顺序至关重要。首个 next() 调用让协程向前执行到 (yield result)，这将返回 result 的初始值 ``None`` 。在接下来的 send() 调用中，接收到的值被放在 line 中并拆分到 result 中。send() 方法的返回值就是传递给下一条 yield 语句的值。换句话说，send() 方法的返回值来自下一个 yield 表达式，而不是接收 send() 传递的值的 yield 表达式。
+
+如果协程返回值，需要小心处理使用 throw() 引发的异常。如果使用 throw() 在协程中引发一个异常，传递给协程中下一条 yield 语句的值将作为 throw() 方法的结果返回。如果需要这个值却又忘记保存它，它就会消失不见。
+
+
+使用生成器与协程
+***********************
+
+乍一看，如何使用生成器和协程解决实际问题似乎并不明显。但在解决系统、网络和分布式计算方面的某些编程问题时，生成器和协程特别有用。例如，生成器函数可用于建立一个处理管道（本质上类似于在 UNIX shell 中使用一个管道）。下面给出一个例子，其中包括关于查找、打开、读取和处理文件的一组生成器函数：
+
+::
+
+    import os
+    import fnmatch
+
+    def find_files(topdir, pattern):
+    　　for path, dirname, filelist in os.walk(topdir):
+    　　　　　for name in filelist:
+    　　　　　　　if fnmatch.fnmatch(name, pattern):
+    　　　　　　　　　yield os.path.join(path,name)
+
+    import gzip, bz2
+    def opener(filenames):
+    　　for name in filenames:
+    　　　　if name.endswith(".gz"): f = gzip.open(name)
+    　　　　elif name.endswith(".bz2"): f = bz2.BZ2File(name)
+    　　　　else: f = open(name)
+    　　　　yield f
+
+    def cat(filelist):
+    　　for f in filelist:
+    　　　　for line in f:
+    　　　　　　yield line
+
+    def grep(pattern, lines):
+    　　for line in lines:
+    　　　　if pattern in line:
+    　　　　　　yield line
+
+下面的例子使用这些函数建立了一个处理管道：
+
+::
+
+    wwwlogs = find("www","access-log*")
+    files　 = opener(wwwlogs)
+    lines　 = cat(files)
+    pylines = grep("python", lines)
+    for line in pylines:
+    　　sys.stdout.write(line)
+
+在这个例子中，程序要处理的是顶级目录 "www" 的所有子目录中的所有 "access-log*" 文件中的全部行。程序将测试每个 "access-log" 文件的文件压缩情况，然后使用正确的文件打开器打开它们。程序将各行连接在一起，并通过查找子字符串 “python” 的过滤器进行处理。整个程序是由位于最后的 for 语句驱动的。该循环的每次迭代都会通过管道获得一个新值并使用之。此外，这种实现占用内存极少，因为它无需创建任何临时列表或其他大型的数据结构。
+
+协程可用于编写数据流处理程序。以这种方式组织的程序像是反转的管道。你将值发送到一些相互连接的协程中，而不是通过一系列使用 for 循环的生成器函数获取值。下面给出了一个例子，其中的协程函数模拟了前面给出的生成器函数：
+
+::
+
+    import os
+    import fnmatch
+
+    @coroutine
+    def find_files(target):
+    　　while True:
+    　　　　topdir, pattern = (yield)
+    　　　　for path, dirname, filelist in os.walk(topdir):
+    　　　　　　for name in filelist:
+    　　　　　　　　if fnmatch.fnmatch(name,pattern):
+    　　　　　　　　　　target.send(os.path.join(path,name))
+
+    import gzip, bz2
+    @coroutine
+    def opener(target):
+    　　while True:
+    　　　　name = (yield)
+    　　　　if name.endswith(".gz"): f = gzip.open(name)
+    　　　　elif name.endswith(".bz2"): f = bz2.BZ2File(name)
+    　　　　else: f = open(name)
+    　　　　target.send(f)
+
+    @coroutine
+    def cat(target):
+    　　while True:
+    　　　　f = (yield)
+    　　　　for line in f:
+    　　　　　　target.send(line)
+    @coroutine
+    def grep(pattern, target):
+    　　while True:
+    　　　　line = (yield)
+    　　　　if pattern in line:
+    　　　　　　target.send(line)
+
+    @coroutine
+    def printer():
+    　　while True:
+    　　　　line = (yield)
+    　　　　sys.stdout.write(line)
+
+以下代码说明了如何将这些协程连接起来，创建一个数据流处理管道：
+
+::
+
+    finder = find_files(opener(cat(grep("python",printer()))))
+
+    # 现在发送一个值
+    finder.send(("www","access-log*"))
+    finder.send(("otherwww","access-log*"))
+
+在这个例子中，每个协程都发送数据给在它们的 target 参数中指定的另一个协程。和生成器的例子不同，执行完全由将数据发送到第一个协程 find_files() 中来驱动。接下来，这个协程将数据转入下一阶段。这个例子有一个关键的地方，即协程管道永远保持活动状态，直到它显式调用 close() 方法为止。因此，只要需要，程序可以不断地给协程中注入数据，例如本例中对于 send() 方法的两次重复调用。
+
+协程可用于实现某种形式的并发。例如，一个集中式的任务管理器或事件循环，可以安排并将数据发送到成百上千个用于执行各种处理任务的协程中。输入数据“被发送”到协程中这个事实还说明，若程序使用消息队列和消息传递在组件之间进行通信，协程可以很容易地与之在一起混合使用。第20章将进一步介绍此方面的内容。
+
+
+列表推导
+***********************
+
+用到函数的一个常见操作是将其用于一个列表的所有项，并使用结果创建一个新列表，例如：
+
+::
+
+    nums = [1, 2, 3, 4, 5]
+    squares = []
+    for n in nums:
+    　　squares.append(n * n)
+
+这种操作很常见，因此出现了叫做列表推导的运算符，举一个简单的例子：
+
+::
+
+    nums = [1, 2, 3, 4, 5]
+    squares = [n * n for n in nums]
+
+列表推导的一般语法如下所示：
+
+::
+
+    [expression for item1 in iterable1 if condition1
+    　　　　　　 for item2 in iterable2 if condition2
+    　　　　　　 ...
+    　　　　　　 for itemN in iterableN if conditionN ]
+
+这种语法大致上等价于以下代码：
+
+::
+
+    s = []
+    for item1 in iterable1:
+    　　if condition1:
+    　　　　for item2 in iterable2:
+    　　　　　 if condition2:
+    　　　　　　　 ...
+    　　　　　　　 for itemN in iterableN:
+    　　　　　　　　　 if conditionN: s.append(expression)
+
+为了解释清楚，下面再列举一些例子：
+
+::
+
+    a = [-3,5,2,-10,7,8]
+    b = 'abc'
+
+    c = [2*s for s in a]　　　　　　# c = [-6,10,4,-20,14,16]
+    d = [s for s in a if s >= 0]　 # d = [5,2,7,8]
+    e = [(x,y) for x in a　　　　　 # e = [(5,'a'),(5,'b'),(5,'c'),
+    　　　　　 for y in b　　　　　　 #　　　(2,'a'),(2,'b'),(2,'c'),
+    　　　　　 if x > 0 ]　　　　　　 #　　　(7,'a'),(7,'b'),(7,'c'),
+    　　　　　　　　　　　　　　　　  　#　　　(8,'a'),(8,'b'),(8,'c')]
+    f = [(1,2), (3,4), (5,6)]
+    g = [math.sqrt(x*x+y*y)　　　　 # f = [2.23606, 5.0, 7.81024]
+    　　 for x,y in f]
+
+提供给列表推导的序列其长度不必相同，因为从上面的代码可以看出，我们使用了一组嵌套的 for 循环来迭代它们的内容。结果列表包含了各个表达式的运算值。if 子句是可选的，但如果使用它，那么只有 condition 为真的时候才会对 expression 求值并添加到结果中。
+
+如果使用列表推导构造元组列表，则元组值必须放在圆括号中。例如， ``[(x, y) for x in a for y in b]`` 是合法的语法，而 ``[x, y for x in a for y in b]`` 是不合法的。
+
+
+生成器表达式
+***********************
+
+生成器表达式是一个对象，它执行的计算与列表推导相同，但会迭代地生成结果。它的语法也与列表推导相同，但要用圆括号代替方括号，例如：
+
+::
+
+    (expression for item1 in iterable1 if condition1
+    　　　　　　  for item2 in iterable2 if condition2
+    　　　　　　  ...
+    　　　　　　  for itemN in iterableN if conditionN)
+
+和列表推导不同，生成器表达式实际上不创建列表或者立即对圆括号内的表达式求值。相反，它会创建一个生成器对象，该对象通过迭代并按照需要生成值，例如：
+
+::
+
+    >>> a = [1, 2, 3, 4]
+    >>> b = (10*i for i in a)
+    >>> b
+    <generator object at 0x590a8>
+    >>> b.next()
+    10
+    >>> b.next()
+    20
+    ...
+
+列表与生成器表达式之间的差异十分重要，但很微妙。使用列表推导时，Python 实际上创建了包含结果数据的列表。而使用生成器表达式时，Python 创建的是只知道如何按照需要生成数据的生成器。在某些应用中，这可能极大地提高性能和内存使用。例如：
+
+::
+
+    # 读取一个文件
+    f = open("data.txt")　　　　　　　　　　　　　　  　# 打开一个文件
+    lines = (t.strip() for t in f)　　　　　　　　　 　# 读取行，并删除前后空白
+
+    comments = (t for t in lines if t[0] == '#')　　 # 所有注释
+    for c in comments:
+    　　 print(c)
+
+在这个例子中，生成器表达式提取各行并删除其中的空白，但它实际上没有将整个文件读取到内存中。提取注释的表达式也是如此。相反，当程序开始在for循环中进行迭代时，才去读取文件的各行。在这个迭代过程中，每一行都是按需生成的，按条件进行了过滤。事实上，该过程从未把整个文件加载到内存中。因此，这是一种从GB级别大小的Python源文件中提取注释的高效方法。
+
+和列表推导不同，生成器表达式不会创建序列形式的对象。你不能对它进行索引，也不能进行任何常规的列表操作，例如append()。但是，使用内置的list()函数可以将生成器表达式转换为列表：
+
+::
+
+    clist = list(comments)
+
+
+声明式编程
+***********************
+
+列表推导和生成器表达式与声明式语言中的操作有着很强的联系。事实上，这些特性在一定程度上源自数学集合论。例如，编写像 ``[x*x for x in a if x > 0]`` 这样的语句时，有点类似于指定一个集合 ``{ x2 | x ∈a, x > 0 }`` 。
+
+可以使用这些声明式特性将程序的结构组织为一系列可以同时操作所有数据的计算，而无需编写手动迭代数据的程序。例如，假定有一个文件 portfolio.txt，它包含下面的股票数据：
+
+::
+
+    AA 100 32.20
+    IBM 50 91.10
+    CAT 150 83.44
+    MSFT 200 51.23
+    GE 95 40.37
+    MSFT 50 65.10
+    IBM 100 70.44
+
+下面这个声明式程序对第二列与第三列的乘积进行求和，从而计算出总价：
+
+::
+
+    lines = open("portfolio.txt")
+    fields = (line.split() for line in lines)
+    print(sum(float(f[1]) * float(f[2]) for f in fields))
+
+在这个程序中，我们并不关心怎样对文件的每行进行循环。相反，我们只是声明了一系列在所有数据上执行的计算。这种方法不仅让代码十分紧凑，而且往往比下面这种传统做法的运行速度更快：
+
+::
+
+    total = 0
+    for line in open("portfolio.txt"):
+    　　fields = line.split()
+    　　total += float(fields[1]) * float(fields[2])
+    print(total)
+
+声明式编程与程序员在 UNIX shell 中执行的某些操作有着某种程度上的联系。例如，前面使用生成器表达式的例子类似于下面这个单行 awk 命令：
+
+::
+
+    % awk '{ total += $2 * $3} END { print total }' portfolio.txt
+    44671.2
+    %
+
+列表推导和生成器表达式的声明式还可以用于模拟数据库处理中常用的 SQL select 语句的行为。例如，看看下面这些例子，它们处理的是读入到字典列表中的数据：
+
+::
+
+    fields = (line.split() for line in open("portfolio.txt"))
+    portfolio = [ {'name' : f[0],
+    　　　　　　　 'shares' : int(f[1]),
+    　　　　　　　 'price' : float(f[2]) }
+    　　　　　　　for f in fields]
+    # 一些查询
+    msft = [s for s in portfolio if s['name'] == 'MSFT']
+    large_holdings = [s for s in portfolio
+    　　　　　　　　　　　　if s['shares']*s['price'] >= 10000]
+
+事实上，如果使用与数据库访问相关的模块，经常可以同时使用列表推导和数据库查询，例如：
+
+::
+
+    sum(shares*cost for shares,cost in
+    　　　　 cursor.execute("select shares, cost from portfolio")
+    　　　　　　if shares*cost >= 10000)
+
+
+lambda 运算符
+***********************
+
+使用 lambda 语句可以创建表达式形式的匿名函数：
+
+::
+
+    lambda args : expression
+
+args 是以逗号分隔的一列参数，而 expression 是用到这些参数的表达式，例如：
+
+::
+
+    a = lambda x,y : x+y
+    r = a(2,3)　　　　　　 # r 的值为 5
+
+使用 lambda 语句定义的代码必须是合法的表达式。lambda 语句中不能出现多条语句和其他非表达式语句，如 for 和 while。lambda 表达式遵循与函数相同的作用域规则。
+
+lambda 的首要用途是指定短小的回调函数。例如，如果要在不考虑大小写的情况下对一列名称进行排序，代码可以这样写：
+
+::
+
+    names.sort(key=lambda n: n.lower())
+
+
+递归
+***********************
+
+定义递归函数很容易，例如：
+
+::
+
+    def factorial(n):
+    　　if n <= 1: return 1
+    　　else: return n * factorial(n - 1)
+
+但是要注意，Python 对于递归函数调用的深度做了限制。函数 sys.getrecursionlimit() 返回当前最大的递归深度，而函数 sys.setrecursionlimit() 可用于修改这个值。默认值为 1000。尽管可以增大这个值，但程序仍然会受主机操作系统使用的栈大小限制。超出递归深度时，就会引发 ``RuntimeError`` 异常。和其他函数式编程语言（如 Scheme）不同，Python 不会进行尾递归优化。
+
+递归不能用在生成器函数和协程中。例如，下面这段代码打印了一个嵌套列表集中的所有项：
+
+::
+
+    def flatten(lists):
+    　　for s in lists:
+    　　　　if isinstance(s,list):
+    　　　　　　 flatten(s)
+    　　　　else:
+    　　　　　　 print(s)
+    items = [[1,2,3],[4,5,[5,6]],[7,8,9]]
+    flatten(items)　　　# 打印结果为 1 2 3 4 5 6 7 8 9
+
+但是，如果将 print 操作改为 yield 语句，这段代码就无法工作。这是因为对 flatten() 函数的递归调用只会创建一个新的生成器对象，而不会实际迭代它。下面给出了递归生成器的有效版本：
+
+::
+
+    def genflatten(lists):
+    　　for s in lists:
+    　　　　if isinstance(s,list):
+    　　　　　　 for item in genflatten(s):
+    　　　　　　　　 yield item
+    　　　　else:
+    　　　　　　 yield item
+
+还要当心混合使用递归函数和装饰器的问题。如果对递归函数使用装饰器，所有内部的递归调用都会通过装饰后的版本进行，例如：
+
+::
+
+    @locked
+    def factorial(n):
+    　　if n <= 1: return 1
+    　　else: return n * factorial(n - 1) # 调用 factorial 函数的已包装版本
+
+如果使用装饰器的目的是进行一些系统管理，如同步或锁定，最好不要使用递归。
+
+文档字符串
+***********************
+
+习惯上我们会将函数的第一条语句写成文档字符串，用于描述函数的用途，例如：
+
+::
+
+    def factorial(n):
+    　　"""Computes n factorial. For example:
+
+    　　　 >>> factorial(6)
+    　　　 120
+    　　　 >>>
+    　　"""
+    　　if n <= 1: return 1
+    　　else: return n*factorial(n-1)
+
+文档字符串保存在函数的 ``__doc__`` 属性中，IDE 通常使用该函数提供交互式帮助。
+
+如果需要使用装饰器，要注意使用装饰器包装函数可能会破坏与文档字符串相关的帮助功能。例如，考虑以下代码：
+
+::
+
+    def wrap(func):
+    　　call(*args,**kwargs):
+    　　　　return func(*args,**kwargs)
+    　　return call
+    @wrap
+    def factorial(n):
+    　　"""Computes n factorial."""
+    　　...
+
+如果用户请求这个版本的 factorial() 函数的帮助，将会看到一种相当诡异的解释：
+
+::
+
+    >>> help(factorial)
+    Help on function call in module __main__:
+
+    call(*args, **kwargs)
+    (END)
+    >>>
+
+这个问题的解决办法是编写可以传递函数名称和文档字符串的装饰器函数，例如：
+
+::
+
+    def wrap(func):
+    　　call(*args,**kwargs):
+    　　　　　　return func(*args,**kwargs)
+    　　　　call.__doc__ = func.__doc__
+    　　　　call.__name__ = func.__name__
+    　　　　return call
+
+因为这是一个常见问题，所以 functools 模块提供了函数 wraps，用于自动复制这些属性。显而易见，它也是一个装饰器：
+
+::
+
+    from functools import wraps
+    def wrap(func):
+    　　@wraps(func)
+    　　call(*args,**kwargs):
+    　　　　return func(*args,**kwargs)
+    　　return call
+
+functools 模块中定义的 ``@wraps(func)`` 装饰器可以将属性从 func 传递给要定义的包装器函数。
+
+
+函数属性
+***********************
+
+可以给函数添加任意属性，例如：
+
+::
+
+    def foo():
+    　　statements
+
+    foo.secure = 1
+    foo.private = 1
+
+函数属性保存在函数的 ``__dict__`` 属性中，并以字典格式存储。
+
+函数属性主要用在高度专用的应用程序中，如语法分析器生成器（parser generator）和要给函数对象附加额外信息的应用程序框架。
+
+和文档字符串一样，也要注意混合使用函数属性和装饰器的问题。如果使用装饰器包装函数，实际上是由装饰器函数而非原始函数来访问属性。考虑到实际应用，这可能是也可能不是你想要的结果。要将已经定义的函数属性传递给装饰器函数，使用以下模板或者前面内容中提到的 ``functools.wraps()`` 装饰器：
+
+::
+
+    def wrap(func):
+    　　call(*args,**kwargs):
+    　　　　return func(*args,**kwargs)
+    　　call.__doc__ = func.__doc__
+    　　call.__name__ = func.__name__
+    　　call.__dict__.update(func.__dict__)
+    　　return call
+
+eval()、exec() 和 compile() 函数
+**********************************************
+
+``eval(str [, globals [, locals]])`` 函数执行一个表达式字符串并返回结果，例如：
+
+::
+
+    a = eval('3*math.sin(3.5+x) + 7.2')
+
+类似地， ``exec(str [, globals [, locals]])`` 函数执行一个包含任意 Python 代码的字符串。提供给 exec() 的代码在执行时并无区别，就好像 exec 语句这个地方本来就有这些代码一样。例如：
+
+::
+
+    a = [3, 5, 10, 13]
+    exec("for i in a: print(i)")
+
+关于 exec 函数有一条注意事项，即在 Python 2 中，exec 函数实际上被定义为一条语句。因此在遗留代码中，可能会看到不使用圆括号调用 exec 函数的语句，如 ``exec "for i in a: print i"`` 。尽管这种语句在Python 2.6 中仍然有效，但在 Python 3 中使用会报错。现代程序应该把 exex() 当作函数来使用。
+
+这两个函数都会在调用者的命名空间中执行，该命名空间用于解析出现在字符串或文件中的任意符号。eval() 和 exec() 函数可以接受一个或两个可选的映射对象，分别用作代码执行的全局和局部命名空间，例如：
+
+::
+
+    globals = {'x': 7,
+    　　　　　 'y': 10,
+    　　　　　 'birds': ['Parrot', 'Swallow', 'Albatross']
+    　　　　　 }
+    locals = { }
+
+    # 执行时使用上面的字典作为全局和局部命名空间
+    a = eval("3 * x + 4 * y", globals, locals)
+    exec("for b in birds: print(b)", globals, locals)
+
+如果省略其中一个或两个命名空间，就会使用全局和局部命名空间的当前值。另外，由于嵌套作用域存在一些问题，如果该函数也包含嵌套的函数定义或使用lambda运算符的话, 在函数体内使用 exec() 函数可能会导致 SyntaxError 异常。
+
+给 exec() 或 eval() 函数传递字符串时，语法分析器首先会把这个字符串编译为字节码。因为这个过程十分耗资源，如果代码要反复执行多次，最好是预编译代码，然后在后续的调用中重用字节码。
+
+compile(str, filename, kind) 函数将字符串编译为字节码，其中 str 是包含要编译代码的字符串，而 filename 是定义该字符串的文件（在跟踪生成中使用）。kind 参数指定了要编译代码的类型 single 代表一条语句，exec 代表一组语句，而 eval 代表一个表达式。还可以将 compile() 函数返回的代码对象传递给 eval() 函数和 exec() 语句，例如：
+
+::
+
+    s = "for i in range(0,10): print(i)"
+    c = compile(s,'','exec')　　　 # 编译为代码对象
+    exec(c)　　　　　　　　　　　　　 # 执行它
+
+    s2 = "3 * x + 4 * y"
+    c2 = compile(s2, '', 'eval')　 # 编译为表达式
+    result = eval(c2)　　　　　　　　# 执行它
