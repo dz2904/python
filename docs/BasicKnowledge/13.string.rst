@@ -172,6 +172,14 @@
     >>> "{name} is approximately {value:.2f}.".format(value=pi, name="π")
     'π is approximately 3.14.'
 
+python 还提供了 format_map() 方法，可以根据字典的键值对格式化字符串。
+
+::
+
+    >>> People = {"name": "john", "age": 33}
+    >>> print("My name is {name},iam{age} old".format_map(People))
+    My name is john,iam33 old
+
 
 字符串方法
 ***********************
