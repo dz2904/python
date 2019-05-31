@@ -56,9 +56,7 @@
 
     Welcome to World Wide Spam, Inc.
 
-    These are the corporate web pages of World Wide Spam
-
-    , Inc. We hope
+    These are the corporate web pages of World Wide Spam, Inc. We hope
     you find your stay enjoyable, and that you will sample many of our
     products.
 
@@ -232,20 +230,20 @@
 
 ::
 
-class Handler:
-    def callback(self, prefix, name, args):
-        method = getattr(self, prefix + name, None)
-        if callable(method): return method(args)
-    def start(self, name):
-        self.callback('start_', name)
-    def end(self, name):
-        self.callback('end_', name)
-    def sub(self, name):
-        def substitution(match):
-            result = self.callback('sub_', name, match)
-            if result is None: match.group(0)
-            return result
-        return substitution
+    class Handler:
+        def callback(self, prefix, name, args):
+            method = getattr(self, prefix + name, None)
+            if callable(method): return method(args)
+        def start(self, name):
+            self.callback('start_', name)
+        def end(self, name):
+            self.callback('end_', name)
+        def sub(self, name):
+            def substitution(match):
+                result = self.callback('sub_', name, match)
+                if result is None: match.group(0)
+                return result
+            return substitution
 
 对于这些代码，有几点需要说明。
 
