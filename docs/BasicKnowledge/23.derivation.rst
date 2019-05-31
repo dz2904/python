@@ -1,0 +1,63 @@
+列表推导
+#######################
+
+用到函数的一个常见操作是将其用于一个列表的所有项，并使用结果创建一个新列表，例如：
+
+.. highlight:: none
+
+::
+
+    nums = [1, 2, 3, 4, 5]
+    squares = []
+    for n in nums:
+    　　squares.append(n * n)
+
+这种操作很常见，因此出现了叫做列表推导的运算符，举一个简单的例子：
+
+::
+
+    nums = [1, 2, 3, 4, 5]
+    squares = [n * n for n in nums]
+
+列表推导的一般语法如下所示：
+
+::
+
+    [expression for item1 in iterable1 if condition1
+    　　　　　　 for item2 in iterable2 if condition2
+    　　　　　　 ...
+    　　　　　　 for itemN in iterableN if conditionN ]
+
+这种语法大致上等价于以下代码：
+
+::
+
+    s = []
+    for item1 in iterable1:
+    　　if condition1:
+    　　　　for item2 in iterable2:
+    　　　　　 if condition2:
+    　　　　　　　 ...
+    　　　　　　　 for itemN in iterableN:
+    　　　　　　　　　 if conditionN: s.append(expression)
+
+为了解释清楚，下面再列举一些例子：
+
+::
+
+    a = [-3,5,2,-10,7,8]
+    b = 'abc'
+
+    c = [2*s for s in a]　　　　　　# c = [-6,10,4,-20,14,16]
+    d = [s for s in a if s >= 0]　 # d = [5,2,7,8]
+    e = [(x,y) for x in a　　　　　 # e = [(5,'a'),(5,'b'),(5,'c'),
+    　　　　　 for y in b　　　　　　 #　　　(2,'a'),(2,'b'),(2,'c'),
+    　　　　　 if x > 0 ]　　　　　　 #　　　(7,'a'),(7,'b'),(7,'c'),
+    　　　　　　　　　　　　　　　　  　#　　　(8,'a'),(8,'b'),(8,'c')]
+    f = [(1,2), (3,4), (5,6)]
+    g = [math.sqrt(x*x+y*y)　　　　 # f = [2.23606, 5.0, 7.81024]
+    　　 for x,y in f]
+
+提供给列表推导的序列其长度不必相同，因为从上面的代码可以看出，我们使用了一组嵌套的 for 循环来迭代它们的内容。结果列表包含了各个表达式的运算值。if 子句是可选的，但如果使用它，那么只有 condition 为真的时候才会对 expression 求值并添加到结果中。
+
+如果使用列表推导构造元组列表，则元组值必须放在圆括号中。例如， ``[(x, y) for x in a for y in b]`` 是合法的语法，而 ``[x, y for x in a for y in b]`` 是不合法的。
