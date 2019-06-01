@@ -105,3 +105,45 @@
 对于类装饰器，应该让装饰器函数始终返回类对象作为结果。需要使用原始类定义的代码可能要直接引用类成员，如 Bar.spam。如果装饰器函数 foo() 返回一个函数，这种引用就是不正确的。
 
 装饰器与函数其他方面的交互行为（如递归、文档字符串和函数属性）有些怪异。本章稍后将会讨论这些问题。
+
+装饰器中的文档字符串
+***********************
+
+当函数中使用装饰器时，要注意使用装饰器包装函数可能会破坏与文档字符串相关的帮助功能。例如，考虑以下代码：
+
+::
+
+    def wrap(func):
+    　　call(*args,**kwargs):
+    　　　　return func(*args,**kwargs)
+    　　return call
+    @wrap
+    def factorial(n):
+    　　"""Computes n factorial."""
+    　　...
+
+如果用户请求这个版本的 factorial() 函数的帮助，将会看到一种相当诡异的解释：
+
+::
+
+    >>> help(factorial)
+    Help on function call in module __main__:
+
+    call(*args, **kwargs)
+    (END)
+    >>>
+
+这个问题的解决办法是编写函数时使用 functools 模块提供了函数 wraps，用于自动复制这些属性。显而易见，它也是一个装饰器：
+
+::
+
+    from functools import wraps
+    def wrap(func):
+    　　@wraps(func)
+    　　call(*args,**kwargs):
+    　　　　return func(*args,**kwargs)
+    　　return call
+
+functools 模块中定义的 ``@wraps(func)`` 装饰器可以将属性从 func 传递给要定义的包装器函数。
+
+
