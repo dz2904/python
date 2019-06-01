@@ -1,0 +1,48 @@
+递归
+########################
+
+定义递归函数很容易，例如：
+
+::
+
+    def factorial(n):
+    　　if n <= 1: return 1
+    　　else: return n * factorial(n - 1)
+
+但是要注意，Python 对于递归函数调用的深度做了限制。函数 sys.getrecursionlimit() 返回当前最大的递归深度，而函数 sys.setrecursionlimit() 可用于修改这个值。默认值为 1000。尽管可以增大这个值，但程序仍然会受主机操作系统使用的栈大小限制。超出递归深度时，就会引发 ``RuntimeError`` 异常。和其他函数式编程语言（如 Scheme）不同，Python 不会进行尾递归优化。
+
+递归不能用在生成器函数和协程中。例如，下面这段代码打印了一个嵌套列表集中的所有项：
+
+::
+
+    def flatten(lists):
+    　　for s in lists:
+    　　　　if isinstance(s,list):
+    　　　　　　 flatten(s)
+    　　　　else:
+    　　　　　　 print(s)
+    items = [[1,2,3],[4,5,[5,6]],[7,8,9]]
+    flatten(items)　　　# 打印结果为 1 2 3 4 5 6 7 8 9
+
+但是，如果将 print 操作改为 yield 语句，这段代码就无法工作。这是因为对 flatten() 函数的递归调用只会创建一个新的生成器对象，而不会实际迭代它。下面给出了递归生成器的有效版本：
+
+::
+
+    def genflatten(lists):
+    　　for s in lists:
+    　　　　if isinstance(s,list):
+    　　　　　　 for item in genflatten(s):
+    　　　　　　　　 yield item
+    　　　　else:
+    　　　　　　 yield item
+
+还要当心混合使用递归函数和装饰器的问题。如果对递归函数使用装饰器，所有内部的递归调用都会通过装饰后的版本进行，例如：
+
+::
+
+    @locked
+    def factorial(n):
+    　　if n <= 1: return 1
+    　　else: return n * factorial(n - 1) # 调用 factorial 函数的已包装版本
+
+如果使用装饰器的目的是进行一些系统管理，如同步或锁定，最好不要使用递归。
