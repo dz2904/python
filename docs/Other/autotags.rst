@@ -56,7 +56,8 @@
 
     Welcome to World Wide Spam, Inc.
 
-    These are the corporate web pages of World Wide Spam, Inc. We hope
+
+    These are the corporate web pages of *World Wide Spam*, Inc. We hope
     you find your stay enjoyable, and that you will sample many of our
     products.
 
@@ -83,9 +84,7 @@
 
     How to get in touch with us
 
-    You can get in touch with us in many
-
-     ways: By phone (555-1234), by
+    You can get in touch with us in *many* ways: By phone (555-1234), by
     email (wwspam@wwspam.fu) or by visiting our customer feedback page
     (http://wwspam.fu/feedback).
 
@@ -106,7 +105,7 @@
 
 代码清单20-2演示了这种方法的一种实现。
 
-代码清单20-2 　一个文本块生成器（util.py）v
+代码清单20-2 　一个文本块生成器（util.py）
 
 ::
 
@@ -123,7 +122,7 @@
                 yield ''.join(block).strip()
                 block = []
 
-成器lines 是个简单的工具，在文件末尾添加一个空行。生成器blocks 实现了刚才描述的方法。生成文本块时，将其包含的所有行合并，并将两端多余的空白（如列表项缩进和换行符）删除，得到一个表示文本块的字符串。（如果不喜欢这种找出段落的方法，你肯定能够设计出其他方法。请看看你最终能设计出多少种方法，这可能很有趣。）我将这些代码存储在文件util.py中，这意味着你稍后可在程序中导入这些生成器。
+成器 lines 是个简单的工具，在文件末尾添加一个空行。生成器blocks 实现了刚才描述的方法。生成文本块时，将其包含的所有行合并，并将两端多余的空白（如列表项缩进和换行符）删除，得到一个表示文本块的字符串。（如果不喜欢这种找出段落的方法，你肯定能够设计出其他方法。请看看你最终能设计出多少种方法，这可能很有趣。）我将这些代码存储在文件 util.py中，这意味着你稍后可在程序中导入这些生成器。
 
 添加一些标记
 =============================
@@ -271,18 +270,14 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
 ::
 
     >>> import re
-    >>> re.sub(r'\*(.+?)\*', handler.sub('emphasis'), 'This is
-
-     a test')
+    >>> re.sub(r'\*(.+?)\*', handler.sub('emphasis'), 'This is a test')
     'This <em>is</em> a test'
 
 太神奇了！（这里的正则表达式与用星号括起的文本匹配，将在稍后讨论。）但为何要这么绕呢？为何不像初次实现中那样使用r'<em>\1</em>' 呢？因为如果这样做，就只能添加em 标签，但你希望处理程序能够根据情况添加不同的标签。例如，如果处理程序为（虚构的）LaTeXRenderer ，应生成完全不同的结果。
 
 ::
 
-    >> re.sub(r'\*(.+?)\*', handler.sub('emphasis'), 'This is
-
-     a test')
+    >> re.sub(r'\*(.+?)\*', handler.sub('emphasis'), 'This is a test')
     'This \\emph{is} a test'
 
 代码还是原来的代码，但添加的标签不同了。
@@ -543,11 +538,9 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
         使用诸如'emphasis'等名称调用时，这个方法将返回相应的
         替换函数
         """
-        def callback(self, prefix, name, args):
+        def callback(self, prefix, name, *args):
             method = getattr(self, prefix + name, None)
-            if callable(method): return method(
-
-    args)
+            if callable(method): return method(*args)
         def start(self, name):
             self.callback('start_', name)
         def end(self, name):
@@ -598,7 +591,7 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
         def sub_mail(self, match):
             return '<a href="mailto:{}">{}</a>'.format(match.group(1), match.group(1))
         def feed(self, data):
-            print(data)`
+            print(data)
 
 代码清单20-5 　规则（rules.py）
 
@@ -608,6 +601,7 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
         """
         所有规则的基类
         """
+
         def action(self, block, handler):
             handler.start(self.type)
             handler.feed(block)
@@ -627,12 +621,12 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
         题目是文档中的第一个文本块，前提条件是它属于标题
         """
         type = 'title'
-            first = True
+        first = True
 
-            def condition(self, block):
-                if not self.first: return False
-                self.first = False
-                return HeadingRule.condition(self, block)
+        def condition(self, block):
+            if not self.first: return False
+            self.first = False
+            return HeadingRule.condition(self, block)
 
     class ListItemRule(Rule):
         """
@@ -676,12 +670,11 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
 
 ::
 
+    #! /usr/bin/env python3
     import sys, re
-    from handlers import
-    from util import
-
-
-    from rules import
+    from handlers import *
+    from util import *
+    from rules import *
 
     class Parser:
         """
@@ -698,9 +691,9 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
                 return re.sub(pattern, handler.sub(name), block)
             self.filters.append(filter)
 
-    def parse(self, file):
-        self.handler.start('document')
-        for block in blocks(file):
+        def parse(self, file):
+            self.handler.start('document')
+            for block in blocks(file):
                 for filter in self.filters:
                     block = filter(block, self.handler)
                     for rule in self.rules:
@@ -722,11 +715,10 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
             self.addRule(HeadingRule())
             self.addRule(ParagraphRule())
 
-            self.addFilter(r'\
-
-    (.+?)\*', 'emphasis')
+            self.addFilter(r'\*(.+?)\*', 'emphasis')
             self.addFilter(r'(http://[\.a-zA-Z/]+)', 'url')
             self.addFilter(r'([\.a-zA-Z]+@[\.a-zA-Z]+[a-zA-Z]+)', 'mail')
+
     handler = HTMLRenderer()
     parser = BasicTextParser(handler)
 
