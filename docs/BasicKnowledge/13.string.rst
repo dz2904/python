@@ -181,6 +181,9 @@ python 还提供了 format_map() 方法，可以根据字典的键值对格式�
     >>> People = {"name": "john", "age": 33}
     >>> print("My name is {name},iam{age} old".format_map(People))
     My name is john,iam33 old
+    
+    # 也可以写成 format 方法，只是要在字典前加上两个星号：
+    >>> print("My name is {name},iam{age} old".format(**People))
 
 
 字符串方法
