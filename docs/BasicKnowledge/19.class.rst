@@ -1,0 +1,1531 @@
+类与面向对象编程
+#######################
+
+类提供了一种组合数据和功能的方法。类通常是由函数（称为方法，method）、变量（称为类变量，class variable）和计算出的属性（称为特性，property）组成的集合。创建一个新类意味着创建一个新类型的对象，从而允许创建一个该类型的新实例。每个类的实例可以拥有保存自己状态的属性。
+
+Python 的类提供了面向对象编程的所有标准特性：类继承机制允许多个基类，派生类可以覆盖它基类的任何方法，一个方法可以调用基类中相同名称的的方法。对象可以包含任意数量和类型的数据。和模块一样，类也拥有 Python 天然的动态特性：它们在运行时创建，可以在创建后修改。
+
+例如，如果你在窗外看到一只鸟，这只鸟就是“鸟类”的一个实例。鸟类是一个非常通用（抽象）的类，它有多个子类：你看到的那只鸟可能属于子类“云雀”。你可将“鸟类”视为由所有鸟组成的集合，而“云雀”是其一个子集。一个类的对象为另一个类的对象的子集时，前者就是后者的子类 。因此“云雀”为“鸟类”的子类，而“鸟类”为“云雀”的超类 。
+
+.. note::
+
+    在英语日常交谈中，使用复数来表示类，如 birds（鸟类）和 larks（云雀）。在 Python中，约定使用单数并将首字母大写，如 Bird 和 Lark 。
+
+通过这样的陈述，子类和超类就很容易理解。但在面向对象编程中，子类关系意味深长，因为类是由其支持的方法定义的。类的所有实例都有该类的所有方法，因此子类的所有实例都有超类的所有方法。有鉴于此，要定义子类，只需定义多出来的方法（还可能重写一些既有的方法）。
+
+例如，Bird 类可能提供方法 fly ，而 Penguin 类（Bird 的一个子类）可能新增方法 eat_fish 。创建 Penguin 类时，你还可能想重写超类的方法，即方法 fly 。鉴于企鹅不能飞，因此在 Penguin 的实例中，方法 fly 应什么都不做或引发异常。
+
+
+创建自定义类
+***********************
+
+使用 class 语句可定义类。类主体包含一系列在类定义时执行的语句，例如：
+
+.. highlight:: none
+
+::
+
+    class Account(object):
+    　　 num_accounts = 0
+    　　 def __init__(self,name,balance):
+    　　　　 self.name = name
+    　　　　 self.balance = balance
+    　　　　 Account.num_accounts += 1
+    　　 def __del__(self):
+    　　　　 Account.num_accounts -= 1
+    　　 def deposit(self,amt):
+    　　　　 self.balance = self.balance + amt
+    　　 def withdraw(self,amt):
+    　　　　 self.balance = self.balance - amt
+    　　 def inquiry(self):
+    　　　　 return self.balance
+
+在类主体执行期间创建的值放在类对象中，这个对象充当着命名空间，与模块极为相似。例如，访问 Account 类成员的方式如下：
+
+::
+
+    Account.num_accounts
+    Account.__init__
+    Account.__del__
+    Account.deposit
+    Account.withdraw
+    Account.inquiry
+
+需要注意的是，class 语句本身并不创建该类的任何实例（例如，上一个例子实际上不会创建任何账户）。类仅设置将在以后创建的所有实例使用的属性。从这种意义上讲，可以将类看作一个蓝图。
+
+类中定义的函数称为 **实例方法** 。实例方法是一种在类的实例上进行操作的函数，类实例作为第一个参数传递。根据约定，这个参数称为self，尽管所有合法的标识符都可以使用。在前面的例子中，deposit()、 withdraw() 和 inquiry() 都是实例方法。
+
+.. note::
+
+    self 参数是什么？它指向对象本身。那么是哪个对象呢？下面通过创建两个实例来说明这一点。
+
+    >>> class Person:
+            def set_name(self, name):
+                 self.name = name
+            def get_name(self):
+                 return self.name
+            def greet(self):
+                  print("Hello, world! I'm {}.".format(self.name))
+
+    >>>
+    >>> foo = Person()
+    >>> bar = Person()
+    >>> foo.set_name('Luke Skywalker')
+    >>> bar.set_name('Anakin Skywalker')
+    >>> foo.greet()
+    Hello, world! I'm Luke Skywalker.
+    >>> bar.greet()
+    Hello, world! I'm Anakin Skywalker.
+
+    这个示例可能有点简单，但澄清了 self 是什么。对 foo 调用 set_name 和 greet 时，foo 都会作为第一个参数自动传递给它们。我将这个参数命名为 self ，这非常贴切。实际上，可以随便给这个参数命名，但鉴于它总是指向对象本身，因此习惯上将其命名为 self 。
+
+    显然，self 很有用，甚至必不可少。如果没有它，所有的方法都无法访问对象本身（要操作的属性所属的对象）。与以前一样，也可以从外部访问这些属性。
+
+    >>> foo.name
+    'Luke Skywalker'
+    >>> bar.name = 'Yoda'
+    >>> bar.greet()
+    Hello, world! I'm Yoda.
+
+    如果 foo 是一个 Person 实例，可将 foo.greet() 视为 Person.greet(foo) 的简写，但后者的多态性更低。
+
+类变量（如num_accounts）是可在类的所有实例之间共享的值（也就是说，它们不是单独分配给每个实例的）。上例中的 num_accounts 变量用于跟踪存在多少个 Account 实例。
+
+类实例
+***********************
+
+类的实例是以函数形式调用类对象来创建的。这种方法将创建一个新实例，然后将该实例传递给类的 ``__init__()`` 方法。 ``__init__()`` 方法的参数包括新创建的实例 self 和在调用类对象时提供的参数。例如：
+
+::
+
+    # 创建一些账户
+    # 调用 Account.__init__(a,"Guido",1000.00)
+    a = Account("Guido", 1000.00)
+    b = Account("Bill", 10.00)
+
+在 ``__init__()`` 内，通过将属性分配给 self 来将其保存到实例中。例如， ``self.name = name`` 表示将 name 属性保存在实例中。在新创建的实例返回到用户之后，使用点 ``.`` 运算符即可访问这些属性以及类的属性，如下所示：
+
+::
+
+    # 调用Account.deposit(a,100.00)
+    a.deposit(100.00)
+    # 调用Account.withdraw(b,50.00)
+    b.withdraw(50.00)
+    # 获取账户名称
+    name = a.name
+
+点 ``.`` 运算符用于属性绑定。访问属性时，结果值可能来自多个不同的地方。例如，上例中的 ``a.name`` 返回实例 a 的 name 属性。而 ``a.deposit`` 返回 Account 类的 deposit 属性（一个方法）。访问属性时，Python 首先会检查实例，如果不知道该属性的任何信息，则会对实例的类进行搜索。这是类与其所有实例共享其属性的底层机制。
+
+
+作用域规则
+***********************
+
+尽管类会定义命名空间，但它们不会为方法中用到的名称创建作用域。所以在实现类时，对属性和方法的引用必须是完全限定的。例如，在方法中，只能通过 self 引用实例的属性。所以，在前面的例子中使用的是 ``self.balance`` ，而不是 balance。如果希望从一个方法中调用另一个方法，也可以采用这种方式，如下所示：
+
+::
+
+    class Foo(object):
+    　　def bar(self):
+    　　　　print("bar!")
+    　　def spam(self):
+    　　　　bar(self)　　　　 # 错误！"bar"生成了一个NameError
+    　　　　self.bar()　　　　# 这条语句能够正常运行
+    　　　　Foo.bar(self)　　 # 这条语句也能够正常运行
+
+类中没有作用域，这是 Python 与 C++ 或 Java 的区别之一。需要显式使用 self 的原因在于，Python 没有提供显式声明变量的方式（如 C 中 int x 或 float y 等声明）。因此，无法知道在方法中要赋值的变量是不是局部变量，或者是否要保存为实例属性。显式使用 self 可以解决该问题，存储在 self 中的所有值都是实例的一部分，所有其他赋值都是局部变量。
+
+继承
+***********************
+
+继承是一种创建新类的机制，目的是使用或修改现有类的行为。原始类称为基类或超类。新类称为派生类或子类。通过继承创建类时，所创建的类将“继承”其基类定义的属性。但是，派生类可以重新定义任何这些属性并添加自己的新属性。
+
+在 class 语句中用以逗号分隔的基类名称列表来指定继承。如果没有有效的基类，类将继承 object，如前面的例子所示。object 是所有 Python 对象的根类，提供了一些常见方法（如 ``__str__()`` ，它可创建供打印函数使用的字符串）的默认实现。
+
+继承通常用于重新定义现有方法的行为。在下面的例子中，一个特殊版的 Account 重新定义了 inquiry() 方法，让它周期性输出比实际更高的余额，这样的话，如果用户没有密切注意账户情况，当他在支付次级抵押贷款时就可能会透支账户，从而招致高额的罚金。
+
+::
+
+    import random
+    class EvilAccount(Account):
+    　　def inquiry(self):
+    　　　　if random.randint(0,4) == 1:
+    　　　　　 return self.balance * 1.10
+    　　　　else:
+
+    　　　　　 return self.balance
+
+    c = EvilAccount("George", 1000.00)
+    c.deposit(10.0)　 # 调用 Account.deposit(c,10.0)
+    available = c.inquiry()　 # 调用 EvilAccount.inquiry(c)
+
+在这个例子中，除了重新定义 inquiry() 方法外，EvilAccount 的实例与 Account 的实例完全相同。
+
+继承是用功能稍微增强的点 ``.`` 运算符实现的。具体来讲，如果搜索一个属性时未在实例或实例的类中找到匹配项，将会继续搜索基类。这个过程会一直继续下去，直到没有更多的基类可供搜索为止。这就是为什么在上一个例子中，c.deposit() 调用了在 Account 类中定义的 deposit() 的实现。
+
+子类可以定义自己的 ``__init__()`` 函数，从而向实例添加新属性。例如，下面的 EvilAccount 版本添加了新属性 evilfactor：
+
+::
+
+    class EvilAccount(Account):
+    　　def __init__(self,name,balance,evilfactor):
+    　　　　Account.__init__(self,name,balance)　# 初始化Account
+    　　　　self.evilfactor = evilfactor
+    　　def inquiry(self):
+    　　　　if random.randint(0,4) == 1:
+    　　　　　 return self.balance * self.evilfactor
+    　　　　else:
+    　　　　　 return self.balance
+
+派生类定义 ``__init__()`` 时，不会自动调用基类的 ``__init__()`` 方法。因此，要由派生类调用基类的 ``__init__()`` 方法来对它们进行恰当的初始化。在上一个例子中，可以从调用 ``Account.__init__()`` 的语句中看到这一点。如果基类未定义 ``__init__()`` ，就可以忽略这一步。如果不知道基类是否定义了 ``__init__()`` ，可在不提供任何参数的情况下调用它，因为始终存在一个不执行任何操作的默认 ``__init__()`` 实现。
+
+有时，派生类将重新实现方法，但是还想调用原始的实现。为此，有一种方法可以显式地调用基类中的原始方法，将实例 self 作为第一个参数传递即可，如下所示：
+
+::
+
+    class MoreEvilAccount(EvilAccount):
+    　　def deposit(self,amount):
+    　　　　self.withdraw(5.00)　　　　　　　　  # 减去“便利”费
+    　　　　EvilAccount.deposit(self,amount)　　# 现在进行存款
+
+这个例子的微妙之处在于，EvilAccount 这个类其实没有实现 deposit() 方法。该方法是在 Account 类中实现的。尽管这段代码能够运行，但它可能会引起一些读者的混淆（例如，EvilAccount 是否应该实现 deposit()? ）。因此，替代解决方案是用 super() 函数，如下所示：
+
+::
+
+    class MoreEvilAccount(EvilAccount):
+    　　def deposit(self,amount):
+    　　　　self.withdraw(5.00)　　　　　　　　　　　　　　　 # 减去便利费
+    　　　　super(MoreEvilAccount,self).deposit(amount)　　# 现在进行存款
+
+super(cls, instance) 会返回一个特殊对象，该对象支持在基类上执行属性查找。如果使用该函数，Python 将使用本来应该在基类上使用的正常搜索规则来搜索属性。有了这种方式，就无需写死方法位置，并且能更清晰地陈述你的意图（即你希望调用以前的实现，无论它是哪个基类定义的）。然而，super() 的语法尚有不足之处。如果使用 Python 3，可以使用简化的语句 super().deposit (amount) 来执行上面示例中的计算。
+
+Python 支持多重继承。通过让一个类列出多个基类即可指定多重继承。例如，下面给出了一个类集合：
+
+::
+
+    class DepositCharge(object):
+    　　fee = 5.00
+    　　def deposit_fee(self):
+    　　　　self.withdraw(self.fee)
+
+    class WithdrawCharge(object):
+    　　fee = 2.50
+    　　def withdraw_fee(self):
+    　　　　self.withdraw(self.fee)
+
+    # 使用了多重继承的类
+    class MostEvilAccount(EvilAccount, DepositCharge, WithdrawCharge):
+    　　def deposit(self,amt):
+    　　　　self.deposit_fee()
+    　　　　super(MostEvilAccount,self).deposit(amt)
+    　　def withdraw(self,amt):
+    　　　　self.withdraw_fee()
+    　　　　super(MostEvilAcount,self).withdraw(amt)
+
+使用多重继承时，属性的解析会变得非常复杂，因为可以使用很多搜索路径来绑定属性。为了说明解析的复杂性，我们来看以下语句：
+
+::
+
+    d = MostEvilAccount("Dave",500.00,1.10)
+    d.deposit_fee()　　# 调用DepositCharge.deposit_fee()。费用是5.00
+    d.withdraw_fee()　 # 调用WithdrawCharge.withdraw_fee()。费用是5.00??
+
+在这个例子中，像 deposit_fee() 和 withdraw_fee() 这样的方法命名都是唯一的，并且可以在各自的基类中找到。但是，withdraw_fee() 函数似乎没有正常工作，因为它并未实际使用在自己的类中初始化的 fee 的值。事实是，在两个不同的基类中都定义了类变量 fee。程序中使用了其中的一个值，但使用的到底是哪个值呢？（提示：是 DepositCharge.fee）。
+
+在查找使用了多重继承的属性时，会将所有基类按从“最特殊”的类到“最不特殊”的类这种顺序进行排列。然后在搜索属性时，就会按这个顺序搜索，直至找到该属性的第一个定义。在上面的例子中，类 EvilAccount 比 Account 更特殊，因为它继承自 Account。同样，在 MostEvilAccount 中，DepositCharge 比 WithdrawCharge 更特殊，因为它排在基类列表中的第一位。对于任何给定的类，通过打印它的 ``__mro__`` 属性即可查看基类的顺序，例如：
+
+::
+
+    >>> MostEvilAccount.__mro__
+    (<class '__main__.MostEvilAccount'>,
+     <class '__main__.EvilAccount'>,
+     <class '__main__.Account'>,
+     <class '__main__.DepositCharge'>,
+     <class '__main__.WithdrawCharge'>,
+     <type 'object'>)
+    >>>
+
+在大多数情况下，这个列表基于“有意义”的规则排列得出。也就是说，始终先检查派生类，然后再检查其基类，如果一个类具有多个父类，那么始终按类定义中列出的父类顺序检查这些父类。但是，基类的准确顺序实际上非常复杂，不是基于任何“简单的”算法，如深度优先或广度优先搜索。实际上，基类的顺序由 C3 线性化算法确定，可以在论文“A Monotonic Superclass Linearization for Dylan”（K. Barrett 等，发表于 OOPSLA’96）中找到该算法的介绍。该算法的一个需要注意的地方是，某些类层次结构将被 Python 拒绝并会抛出 TypeError 错误，例如：
+
+::
+
+    class X(object): pass
+    class Y(X): pass
+    class Z(X,Y): pass　　# TypeError。
+    　　　　　　　　　　　  # 无法创建一致的方法解析顺序__
+
+在这个例子中，方法解析算法拒绝创建类 Z，因为它无法确定合理的基类顺序。例如，在继承列表中，类 X 出现在类 Y 前面，所以必须首先检查类 X。但是，类 Y 更特殊，因为它继承自类 X。因此，如果首先检查 X，就不可能解析 Y 中更为特殊的方法。实际上这种问题应该很罕见——如果出现，通常表明程序存在更为严重的设计问题。
+
+一般来说，在大多数程序中最好避免使用多重继承。但是，多重继承有时可用于定义所谓的混合（mixin）类。混合类通常定义了要“混合到”其他类中的一组方法，目的是添加更多的功能（这与宏很类似）。通常，混合类中的方法将假定其他方法存在，并将以这些方法为基础构建。前面例子中的 DepositCharge 和 WithdrawCharge 类就是例证。这些类将向其子类中添加新方法（如 deposit_fee()）。但是，DepositCharge 这个类永远不会被实例化。实际上，如果你实例化了该类，它并不会创建具有任何用途的实例，也就是说，定义的方法甚至不会正确执行。
+
+最后还要注意一点，如果希望解决本例中存在问题的fee引用，应该将 deposit_fee() 和 withdraw_fee() 的实现改为直接使用类名引用该属性，而不是用 self（如 DepositChange.fee）。
+
+多态动态绑定和鸭子类型
+***********************
+
+动态绑定（在继承背景下使用时，有时也称为多态性）是指在不考虑实例类型的情况下使用实例只要以 obj.attr 的形式访问属性，就会按照一定的顺序搜索并定位 attr： 首先是实例本身，接着是实例的类定义，然后是基类。查找过程会返回第一个匹配项。
+
+这种绑定过程的关键在于，它不受对象 obj 的类型影响。因此，如果执行像 obj.name 这样的查找，对所有拥有 name 属性的 obj 都是适用的。这种行为有时被称为“鸭子类型”（duck typing），这个名称来源于一句谚语：“如果看起来像、叫声像而且走起路来像鸭子，那么它就是鸭子。”
+
+Python 程序员经常编写利用这种行为的程序。例如，如果想编写现有对象的自定义版本，可以继承该对象，也可以创建一个外观和行为像它但与它无任何关系的全新对象。后一种方法通常用于保持程序组件的松散耦合。例如，可以编写代码来处理任何种类的对象，只要该对象拥有特定的方法集。最常见的例子就是利用标准库中定义的各种“类似文件”的对象。尽管这些对象的工作方式像文件，但它们并不是继承自内置文件对象的。
+
+静态方法和类方法
+***********************
+
+在类定义中，所有函数都被假定在实例上操作，该实例总是作为第一个参数 self 传递。但是，还可以定义两种常见的方法。
+
+静态方法是一种普通函数，只不过它们正好位于类定义的命名空间中。它不会对任何实例类型进行操作。要定义静态方法，可使用 @staticmethod 装饰器，如下所示：
+
+::
+
+    class Foo(object):
+    　　 @staticmethod
+    　　 def add(x,y):
+    　　　　 return x + y
+
+要调用静态方法，只需用类名作为它的前缀。无需向它传递任何其他信息，例如：
+
+::
+
+    x = Foo.add(3,4)　　 # x = 7
+
+如果在编写类时需要采用很多不同的方式来创建新实例，则常常使用静态方法。因为类中只能有一个 ``__init__()`` 函数，所以替代的创建函数通常按如下方式定义：
+
+::
+
+    class Date(object):
+    　　def __init__(self,year,month,day):
+    　　　　self.year = year
+    　　　　self.month = month
+    　　　　self.day = day
+    　　@staticmethod
+    　　def now():
+    　　　　 t = time.localtime()
+    　　　　 return Date(t.tm_year, t.tm_mon, t.tm_day)
+    　　@staticmethod
+    　　def tomorrow():
+    　　　　 t = time.localtime(time.time()+86400)
+    　　　　 return Date(t.tm_year, t.tm_mon, t.tm_day)
+
+    # 创建日期的示例
+    a = Date(1967, 4, 9)
+    b = Date.now()　　　　 # 调用静态方法now()
+    c = Date.tomorrow()　　# 调用静态方法tomorrow()
+
+类方法是将类本身作为对象进行操作的方法。类方法使用 @classmethod 装饰器定义，与实例方法不同，因为根据约定，类是作为第一个参数（名为 cls）传递的，例如：
+
+::
+
+    class Times(object):
+    　　factor = 1
+    　　@classmethod
+    　　def mul(cls,x):
+    　　　　return cls.factor*x
+
+    class TwoTimes(Times):
+    　　factor = 2
+
+    x = TwoTimes.mul(4)　　# 调用Times.mul(TwoTimes, 4) -> 8
+
+在这个例子中，请注意类 TwoTimes 是如何作为对象传递给 mul() 的。尽管这个例子有些深奥，但类方法还有一些实用且巧妙的用法。例如，你定义了一个类，它继承自前面给出的 Date 类并对其略加定制：
+
+::
+
+    class EuroDate(Date):
+    　　# 修改字符串转换，以使用欧洲日期格式
+    　　def __str__(self):
+    　　　　return "%02d/%02d/%4d" % (self.day, self.month, self.year)
+
+由于该类继承自 Date，所以它拥有 Date 的所有特性。但是 now() 和 tomorrow() 方法稍微有点不同。例如，如果调用 EuroDate.now()，则会返回 Date 对象，而不是 EuroDate 对象。类方法可以解决该问题：
+
+::
+
+    class Date(object):
+    　　...
+    　　@classmethod
+    　　def now(cls):
+    　　　　 t = time.localtime()
+    　　　　 # 创建具有合适类型的对象
+    　　　　 return cls(t.tm_year, t.tm_month, t.tm_day)
+
+    class EuroDate(Date):
+    　　...
+
+    a = Date.now()　　　　# 调用Date.now(Date)并返回Date
+    b = EuroDate.now()　　# 调用Date.now(EuroDate)并返回EuroDate
+
+关于静态方法和类方法需要注意的一点是，Python 不会在与实例方法独立的命名空间中管理它们。因此，可以在实例上调用它们。例如：
+
+::
+
+    a = Date(1967,4,9)
+    b = d.now()　　　　　# 调用Date.now(Date)
+
+这可能很容易引起混淆，因为对 d.now() 的调用与实例d没有任何关系。这种行为是 Python 对象系统与其他面向对象语言（如 Smalltalk 和 Ruby）对象系统的区别之一。在这些语言中，类方法与实例方法是严格分开的。
+
+特性
+***********************
+
+通常，访问实例或类的属性时，返回的会是所存储的相关值。特性（property）是一种特殊的属性，访问它时会计算它的值。下面是一个简单的例子：
+
+::
+
+    class Circle(object):
+    　　 def __init__(self,radius):
+    　　　　 self.radius = radius
+    　　 # Circle的一些附加特性
+    　　 @property
+    　　 def area(self):
+    　　　　 return math.pi*self.radius**2
+    　　 @property
+    　　 def perimeter(self):
+    　　　　 return 2*math.pi*self.radius
+
+得到的Circle对象的行为如下：
+
+::
+
+    >>> c = Circle(4.0)
+    >>> c.radius
+    4.0
+    >>> c.area
+    50.26548245743669
+    >>> c.perimeter
+    25.132741228718345
+    >>> c.area = 2
+    Traceback (most recent call last):
+    　File "<stdin>", line 1, in <module>
+    AttributeError: can't set attribute
+    >>>
+
+在这个例子中，Circle 实例存储了一个实例变量 c.radius。c.area 和 c.perimeter 是根据该值计算得来的。@property 装饰器支持以简单属性的形式访问后面的方法，无需像平常一样添加额外的 ``()`` 来调用该方法。对象的使用者很难发现正在计算一个属性，除非在试图重新定义该属性时生成了错误消息（如上面的 AttributeError 异常所示）。
+
+这种特性使用方式遵循所谓的统一访问原则。实际上，如果定义一个类，尽可能保持编程接口的统一总是不错的。如果没有特性，将会以简单属性（如 c.radius）的形式访问对象的某些属性，而其他属性将以方法（如 c.area() ）的形式访问。费力去了解何时添加额外的 () 会带来不必要的混淆。特性可以解决该问题。
+
+Python 程序员很少认识到，方法本身是被隐式地作为一类特性处理的。考虑下面这个类：
+
+::
+
+    class Foo(object):
+    　　 def __init__(self,name):
+    　　　　 self.name = name
+    　　 def spam(self,x):
+    　　　　 print("%s, %s" % (self.name, x)
+
+用户创建 f = Foo("Guido") 这样的实例然后访问 f.spam 时，不会返回原始函数对象 spam，而是会得到所谓的绑定方法（bound method），绑定方法是一个对象，代表将在对象上调用 ``()`` 运算符时执行的方法调用。绑定方法有点类似于已部分计算的函数，其中的self参数已经填入，但其他参数仍然需要在使用 () 调用该函数时提供。这种绑定方法对象是由在后台执行的特性函数静默地创建的。使用 @staticmethod 和 @classmethod 定义静态方法和类方法时，实际上就指定了使用不同的特性函数，以不同的方式处理对这些方法的访问。例如，@staticmethod 仅“按原样”返回方法函数，不会进行任何特殊的包装或处理。
+
+特性还可以截获操作权，以设置和删除属性。这是通过向特性附加其他 setter 和 deleter 方法来实现的，如下所示：
+
+::
+
+    class Foo(object):
+    　　def __init__(self,name):
+    　　　　self.__name = name
+    　　@property
+    　　def name(self):
+    　　　　return self.__name
+    　　@name.setter
+    　　def name(self,value):
+    　　　　if not isinstance(value,str):
+    　　　　　　 raise TypeError("Must be a string!")
+    　　　　self.__name = value
+    　　@name.deleter
+    　　def name(self):
+    　　　　raise TypeError("Can't delete name")
+
+    f = Foo("Guido")
+    n = f.name　　　　　 # 调用f.name() – get函数
+    f.name = "Monty"　　# 调用setter name(f,"Monty")
+    f.name = 45　　　　  # 调用setter name(f,45) -> TypeError
+    del f.name　　　　　 # 调用deleter name(f) -> TypeError
+
+在这个例子中，首先使用 @property 装饰器和相关方法将属性 name 定义为只读特性。后面的 @name.setter 和 @name.deleter 装饰器将其他方法与 name 属性上的设置和删除操作相关联。这些方法的名称必须与原始特性的名称完全匹配。在这些方法中，请注意实际的名称值存储在属性 __name 中。所存储属性的名称无需遵循任何约定，但它必须与特性名称不同，以便将它与特性的名称区分开。
+
+在以前的代码中，通常会看到用 property(getf=None, setf=None, delf=None, doc=None) 函数来定义特性，往其中传入一组名称不同的方法，用于执行相关操作。例如：
+
+::
+
+    class Foo(object):
+    　　def getname(self):
+    　　　　return self.__name
+    　　def setname(self,value):
+    　　　　if not isinstance(value,str):
+    　　　　　　 raise TypeError("Must be a string!")
+    　　　　self.__name = value
+    　　def delname(self):
+    　　　　raise TypeError("Can't delete name")
+    　　name = property(getname,setname,delname)
+
+这种老方法仍然可以使用，但装饰器版本会让类看起来更整洁。例如，如果使用装饰器，get、 set 和 delete 函数将不会显示为方法。
+
+描述符
+***********************
+
+使用特性后，对属性的访问将由一系列用户定义的 get、set 和 delete 函数控制。这种属性控制方式可以通过描述符对象进一步泛化。描述符就是一个代表属性值的对象。通过实现一个或多个特殊的 __get__()、__set__() 和 __delete__() 方法，可以将描述符与属性访问机制挂钩，还可以自定义这些操作，如下所示：
+
+::
+
+    class TypedProperty(object):
+    　　def __init__(self,name,type,default=None):
+    　　　　self.name = "_" + name
+    　　　　self.type = type
+    　　　　self.default = default if default else type()
+    　　def __get__(self,instance,cls):
+    　　　　return getattr(instance,self.name,self.default)
+    　　def __set__(self,instance,value):
+    　　　　if not isinstance(value,self.type):
+    　　　　　　raise TypeError("Must be a %s" % self.type)
+    　　　　setattr(instance,self.name,value)
+    　　def __delete__(self,instance):
+    raise AttributeError("Can't delete attribute")
+
+    class Foo(object):
+    　　name = TypedProperty("name",str)
+    　　num　= TypedProperty("num",int,42)
+
+在这个例子中，类 TypedProperty 定义了一个描述符，分配属性时它将进行类型检查，如果尝试删除属性，它将引发错误。例如：
+
+::
+
+    f = Foo()
+    a = f.name　　　　　 # 隐式调用Foo.name.__get__(f,Foo)
+    f.name = "Guido"　　# 调用Foo.name.__set__(f,"Guido")
+    del f.name　　　　　 # 调用Foo.name.__delete__(f)
+
+描述符只能在类级别上进行实例化。不能通过在 __init__() 和其他方法中创建描述符对象来为每个实例创建描述符。而且，持有描述符的类使用的属性名称比实例上存储的属性名称具有更高的优先级。在上一个例子中，描述符对象接受参数 name，并且对其略加修改（前面加了个下划线），原因就在于此。为了能让描述符在实例上存储值，描述符必须挑选一个与它本身所用名称不同的名称。
+
+数据封装和私有属性
+***********************
+
+默认情况下，类的所有属性和方法都是“公共的”。这意味着对它们的访问没有任何限制。这还暗示着，在基类中定义的所有内容都会被派生类继承，并可从派生类内进行访问。在面向对象的应用程序中，通常我们不希望发生这种行为，因为它会暴露对象的内部实现，可能导致在派生类中定义的对象与在基类中定义的对象之间发生命名空间冲突。
+
+为了解决该问题，类中所有以双下划线开头的名称（如 __Foo）都会自动变形，形成具有 _Classname__Foo 形式的新名称。这提供了一种在类中添加私有属性和方法的有效方式，因为派生类中使用的私有名称不会与基类中使用的相同私有名称发生冲突，如下所示：
+
+::
+
+    class A(object):
+    　　def __init__(self):
+    　　　　self.__X = 3　　　 # 变形为self._A__X
+    　　def __spam(self):　　　# 变形为_A__spam()
+    　　　　pass
+    　　def bar(self):
+    　　　　self.__spam()　　　# 只调用A.__spam()
+    class B(A):
+    　　def __init__(self):
+    　　　　A.__init__(self)
+    　　　　self.__X = 37　　　# 变形为self._B__X
+    　　def __spam(self):　　　# 变形为_B__spam()
+    　　　　pass
+
+尽管这种方案似乎隐藏了数据，但并没有严格的机制来实际阻止对类的“私有”属性进行访问。特别是如果已知类名称和相应私有属性的名称，则可以使用变形后的名称来访问它们。通过重定义 __dir__() 方法，类可以降低这些属性的可见性，__dir__() 方法提供了检查对象的 dir() 函数所返回的名称列表。
+
+尽管这种名称变形似乎是一个额外的处理步骤，但变形过程实际上只在定义类时发生一次。它不会在方法执行期间发生，也不会为程序的执行添加额外的开销。而且要知道，名称变形不会在 getattr()、hasattr()、setattr() 或 delattr() 等函数中发生，在这些函数中，属性名被指定为字符串。对于这些函数，需要显式使用变形名称（如 __Classname__name ）来访问属性。
+
+建议在定义可变属性时，通过特性来使用私有属性。这样，就可鼓励用户使用特性名称，而无需直接访问底层实例数据（如果你在实例开头添加了一个特性，可能不想采用这种访问方式）。上一节中已经给出了这样的例子。
+
+通过为方法提供私有名称，超类可以阻止派生类重新定义和更改方法的实现。例如，示例中的 A.bar() 方法只调用 A.__spam() ，无论 self 具有何种类型，或者派生类中是否存在不同的 __spam() 方法都是如此。
+
+最后，不要混淆私有类属性的命名和模块中“私有”定义的命名。一个常见的错误是，在定义类时，在属性名上使用单个前导下划线来隐藏属性值（如 _name）。在模块中，这种命名约定可以阻止通过 ``from module import *`` 语句导出名称。但是在类中，这种命名约定既不能隐藏属性，在某个类继承该类并使用相同名称定义一个新属性或方法时，也不能阻止出现名称冲突。
+
+对象内存管理
+***********************
+
+定义类后，得到的类是一个可创建新实例的工厂。例如：
+
+::
+
+    class Circle(object):
+    　　def __init__(self,radius):
+    　　　　 self.radius = radius
+
+    # 创建一些Circle实例
+    c = Circle(4.0)
+    d = Circle(5.0)
+
+实例的创建包括两个步骤：使用特殊方法 __new__() 创建新实例，然后使用 __init__() 初始化该实例。例如，操作 c = Circle(4.0) 执行以下步骤：
+
+::
+
+    c = Circle.__new__(Circle, 4.0)
+    if isinstance(c,Circle):
+    　　Circle.__init__(c,4.0)
+
+类的 ``__new__()`` 方法很少通过用户代码定义。如果定义了它，它通常是用原型 __new__(cls, *args, **kwargs) 编写的，其中 args 和 kwargs 与传递给 __init__() 的参数相同。__new__() 始终是一个类方法，接受类对象作为第一个参数。尽管 __new__() 会创建一个实例，但它不会自动调用 __init__()。
+
+如果看到在类中定义了 __new__()，通常表明这个类会做两件事之一。首先，该类可能继承自一个基类，该基类的实例是不可变的。如果定义的对象继承自不可变的内置类型（如整数、字符串或元组），常常会遇到这种情况，因为 __new__() 是唯一在创建实例之前执行的方法，也是唯一可以修改值的地方（也可以在 __init__() 中修改，但这时修改可能为时已晚）。例如：
+
+::
+
+    class Upperstr(str):
+    　　def __new__(cls,value=""):
+    　　　　return str.__new__(cls, value.upper())
+
+    u = Upperstr("hello")　 # 值为"HELLO"
+
+__new__() 的另一个主要用途是在定义元类时使用。元类将在创建实例之后，实例将由引用计数来管理。如果引用计数到达 0，实例将立即被销毁。当实例即将被销毁时，解释器首先会查找与对象相关联的 __del__() 方法并调用它。而实际上，很少有必要为类定义 __del__() 方法。唯一的例外是在销毁对象之后需要执行清除操作（如关闭文件、关闭网络连接或释放其他系统资源）。即使在这种情况下，依靠 __del__() 来完全关闭实例也存在一定的危险，因为无法保证在解释器退出时会调用该方法。更好的方案是定义一个方法，如 close()，程序可以使用该方法显式执行关闭操作。
+
+有时，程序会使用 del 语句来删除对象引用。如果这导致对象的引用计数变成 0，则会调用 __del__() 方法。但是，del 语句通常不会直接调用 __del__()。
+
+销毁对象存在一个不易察觉的风险，即定义了 __del__() 的实例无法被 Python 的循环垃圾回收器回收（这是只在需要时才定义 __del__ 的重要原因）。使用过没有自动垃圾回收功能的语言（如 C++）的程序员应该注意编程风格，不要定义不必要的 __del__() 。尽管定义 __del__() 很少会破坏垃圾回收器，但是在某些编程模式中（特别是涉及父子关系或图表的编程模式），这可能会引起问题。例如，设想某个对象实现了一种“观察者模式”（Observer Pattern）。
+
+::
+
+    class Account(object):
+    　　def __init__(self,name,balance):
+    　　　　 self.name = name
+    　　　　 self.balance = balance
+    　　　　 self.observers = set()
+    　　def __del__(self):
+    　　　　 for ob in self.observers:
+    　　　　　　 ob.close()
+    　　　　 del self.observers
+    　　def register(self,observer):
+    　　　　self.observers.add(observer)
+    　　def unregister(self,observer):
+    　　　　self.observers.remove(observer)
+    　　def notify(self):
+    　　　　for ob in self.observers:
+    　　　　　　ob.update()
+    　　def withdraw(self,amt):
+    　　　　self.balance -= amt
+    　　　　self.notify()
+
+    class AccountObserver(object):
+    　　 def __init__(self, theaccount):
+    　　　　 self.theaccount = theaccount
+    　　　　 theaccount.register(self)
+    　　 def __del__(self):
+    　　　　 self.theaccount.unregister(self)
+    　　　　 del self.theaccount
+    　　 def update(self):
+    　　　　 print("Balance is %0.2f" % self.theaccount.balance)
+    　　 def close(self):
+    　　　　 print("Account no longer in use")
+
+    # 示例设置
+    a = Account('Dave',1000.00)
+    a_ob = AccountObserver(a)
+
+在这段代码中，Account 类允许一组 AccountObserver 对象监控 Account 实例，在余额出现变化时接收更新。为此，每个 Account 都会保留一组观察者，每个 AccountObserver 会保留对账户的引用。每个类都定义了 __del__() ，以尝试进行某种清除操作（如注销等）。但是，这种尝试不会生效。相反，类会创建一个引用循环，在这个循环中，引用计数永远不会到达 0，也永远不会执行清除操作。不仅如此，垃圾回收器（gc 模块）甚至不会清除该类，这会导致永久性的内存泄漏。
+
+解决本示例中这种问题的一种方式是，使用 weakref 模块为一个类创建对其他类的弱引用。弱引用是一种在不增加对象引用计数的情况下创建对象引用的方式。要使用弱引用，需要添加一点额外的功能代码，来检查被引用的对象是否仍然存在。下面是经过修改的观察者类示例：
+
+::
+
+    import weakref
+    class AccountObserver(object):
+    　　 def __init__(self, theaccount):
+    　　　　 self.accountref = weakref.ref(theaccount) # 创建weakref
+    　　　　 theaccount.register(self)
+    　　 def __del__(self):
+    　　　　 acc = self.accountref()　　　　 # 获取账户
+    　　　　 if acc:　　　　　　　　　　　　 # 如果仍然存在则注销
+    　　　　　　　 acc.unregister(self)
+    　　 def update(self):
+    　　　　 print("Balance is %0.2f" % self.accountref().balance)
+    　　 def close(self):
+    　　　　 print("Account no longer in use")
+
+    # 示例设置
+    a = Account('Dave',1000.00)
+    a_ob = AccountObserver(a)
+
+在这个例子中我们创建了弱引用 accountref。要访问底层的 Account，可以像函数一样调用它。这可能返回 Account，也可能在实例不存在时返回 None。这样修改之后就没有引用循环了。如果销毁了 Account 对象，它的 __del__ 方法将运行，观察者会收到通知。gc 模块也会正常工作。
+
+对象表示和属性绑定
+***********************
+
+从内部实现上看，实例是使用字典来实现的，可以通过实例的 __dict__ 属性访问该字典。这个字典包含的数据对每个实例而言都是唯一的，如下所示：
+
+::
+
+    >>> a = Account('Guido', 1100.0)
+    >>> a.__dict__
+    {'balance': 1100.0, 'name': 'Guido'}
+
+可以在任何时候向实例添加新属性，例如：
+
+::
+
+    a.number = 123456　　# 将属性'number'添加到 a.__dict__
+
+对实例的修改始终会反映到局部 __dict__ 属性中。同样，如果直接对 __dict__ 进行修改，所做的修改也会反映在实例的属性中。
+
+实例通过特殊属性 __class__ 链接回它们的类。类本身也只是对字典的浅层包装，你可以在实例的 __dict__ 属性中找到这个字典。可以在类字典中找到各种方法。例如：
+
+::
+
+    >>> a.__class__
+    <class '__main__.Account'>
+    >>> Account.__dict__.keys()
+    ['__dict__', '__module__', 'inquiry', 'deposit', 'withdraw',
+    '__del__', 'num_accounts', '__weakref__', '__doc__', '__init__']
+    >>>
+
+最后，通过特殊属性 __bases__ 中将类链接到它们的基类，该属性是一个基类元组。这种底层结构是获取、设置和删除对象属性的所有操作的基础。
+
+只要使用 obj.name = value 设置了属性，特殊方法 obj.__setattr__("name", value) 就会被调用。如果使用 del obj.name 删除了一个属性，就会调用特殊方法 obj.__delattr__("name")。这些方法的默认行为是修改或删除 obj 的局部 __dict__ 的值，除非请求的属性正好是一个特性或描述符。在这种情况下，设置和删除操作将由与该特性相关联的设置和删除函数执行。
+
+在查找属性（如 obj.name）时，将调用特殊方法 obj.__getattrribute__("name") 。该方法执行搜索来查找该属性，这通常涉及检查特性、查找局部 __dict__ 属性、检查类字典以及搜索基类。如果搜索过程失败，最终会尝试调用类的 __getattr__() 方法（如果已定义）来查找该属性。如果这也失败，就会抛出 AttributeError 异常。
+
+如果有必要，用户定义的类可以实现其自己的属性访问函数。例如：
+
+::
+
+    class Circle(object):
+    　　def __init__(self,radius):
+    　　　　self.radius = radius
+    　　def __getattr__(self,name):
+    　　　　if name == 'area':
+    　　　　　　 return math.pi*self.radius**2
+    　　　　elif name == 'perimeter':
+    　　　　　　 return 2*math.pi*self.radius
+    　　else:
+    　　　　 return object.__getattr__(self,name)
+    def __setattr__(self,name,value):
+    　　if name in ['area','perimeter']:
+    　　　　 raise TypeError("%s is readonly" % name)
+    　　object.__setattr__(self,name,value)
+
+重新实现这些方法的类应该可以依靠 object 中的默认实现来执行实际的工作。这是因为默认实现能够处理类的更高级特性，如描述符和特性。
+
+一般来讲，类很少重新定义属性访问运算符。但是，在编写通用的包装器和现有对象的代理时，通常会使用属性访问运算符。通过重新定义 __getattr__()、__setattr__() 和 __delattr__()，代理可以捕获属性访问操作，并透明地将这些操作转发给另一个对象。
+
+__slots__
+***********************
+
+通过定义特殊变量 __slots__，类可以限制对合法实例属性名称的设置，如下所示：
+
+::
+
+    class Account(object):
+    　　__slots__ = ('name','balance')
+    　　　...
+
+定义 __slots__ 时，可以将实例上分配的属性名称限制为指定的名称，否则将引发 AttributeError 异常。这种限制可以阻止其他人向现有实例添加新属性，即便用户将属性名称写错，也不会创建出新的属性来。
+
+在实际使用中，__slots__ 从未被当作一种安全的特性来实现。它实际上是对内存和执行速度的一种性能优化。使用 __slots__ 的类的实例不再使用字典来存储实例数据，转而采用一种基于数组的更加紧凑的数据结构。在会创建大量对象的程序中，使用 __slots__ 可以显著减少减少内存占用和执行时间。
+
+注意，__slots__ 与继承的配合使用需要一定的技巧。如果类继承自使用 __slots__ 的基类，那么它也需要定义 __slots__ 来存储自己的属性（即使它不会添加任何属性也是如此），这样才能利用 __slots__ 提供的优势。如果忘记了这一点，派生类的运行速度将更慢，占用的内存也更多，比完全不使用 __slots__ 时情况更糟。
+
+__slots__ 的使用还会破坏期望实例具有底层 __dict__ 属性的代码。尽管这一点通常不适用于用户代码，但对于支持对象的实用库和其他工具，其代码可能要依靠 __dict__ 来调试、序列化对象以及执行其他操作。
+
+最后，如果类中重新定义了 __getattribute__()、__getattr__() 和 __setattr__() 等方法，__slots__ 的存在不会对它们的调用产生任何影响。但是，这些方法的默认行为将考虑到 __slots__。此外应该强调一点，没有必要向 __slots__ 添加方法或特性名称，因为它们存储在类中，而不是存储在每个实例中。
+
+运算符重载
+***********************
+
+通过向类中添加第3章中介绍的特殊方法的实现，可以让用户定义的对象使用 Python 的所有内置运算符。例如，如果希望向 Python 添加一种新的数字类型，可以定义一个类并在该类中定义 __add__() 等特殊方法，让实例能够使用标准数学运算符。
+
+下面的例子演示了这一过程，其中定义了一个类来实现能够使用一些标准运算符的复数。
+
+注意：由于 Python 已经提供了复数类型，所以这个类只是用于演示目的。
+
+::
+
+    class Complex(object):
+    　　def __init__(self,real,imag=0):
+    　　　　self.real = float(real)
+    　　　　self.imag = float(imag)
+    　　def __repr__(self):
+    　　　　return "Complex(%s,%s)" % (self.real, self.imag)
+    　　def __str__(self):
+    　　　　return "(%g+%gj)" % (self.real, self.imag)
+    　　# self + other
+    　　def __add__(self,other):
+    　　　　return Complex(self.real + other.real, self.imag + other.imag)
+    　　# self - other
+    　　def __sub__(self,other):
+    　　　　return Complex(self.real - other.real, self.imag - other.imag)
+
+在这个例子中，__repr__() 方法创建一个字符串，可以通过对该字符串进行求值来重新创建对象（也就是 Complex(real,imag)）。应该尽可能在所有用户定义对象中遵循这一约定。另一方面，__str__() 方法创建具有良好输出格式的字符串（这是将由 print 语句生成的字符串）。
+
+其他运算符（如 __add__() 和 __sub__()）实现数学运算。对于这些运算符，需要注意的地方是操作数的顺序和类型强制。从在上一个例子中实现的运算符可以看出，__add__() 和 __sub__() 运算符仅适用于复数出现在运算符左侧的情形。如果复数出现在运算符右侧，而且最左侧的操作数不是 Complex，这些运算符将无效。例如：
+
+::
+
+    >>> c = Complex(2,3)
+    >>> c + 4.0
+    Complex(6.0,3.0)
+    >>> 4.0 + c
+    Traceback (most recent call last):
+    　File "<stdin>", line 1, in <module>
+    TypeError: unsupported operand type(s) for +: 'int' and 'Complex'
+
+    >>>
+
+
+操作 c + 4.0 偶尔也会生效。Python 的所有内置数字都已拥有 .real 和 .imag 属性，所以在计算中使用了它们。如果 other 对象没有这些属性，实现将无效。如果希望 Complex的实现能够与缺少这些属性的对象一同工作，必须添加额外的转换代码来提取所需的信息（具体信息取决于其他对象的类型）。
+
+操作 4.0 + c 则完全无效，因为内置的浮点类型不知道 Complex 类的任何信息。要解决此问题，可以向 Complex 添加逆向操作数（reversed-operand）方法：
+
+::
+
+    class Complex(object):
+    　　...
+    　　def __radd__(self,other):
+    　　　　return Complex(other.real + self.real, other.imag + self.imag)
+    　　def __rsub__(self,other):
+    　　　　return Complex(other.real - self.real, other.imag - self.img)
+    　　...
+
+这些方法是备用方法。如果操作 4.0 + c 失败，Python 将在发出 TypeError 之前首先尝试执行 c.__radd__(4.0)。
+
+早期的 Python 版本会尝试用各种方法来强制转换混合类型操作中的类型。例如，你可能会遇到实现了 __coerce__() 方法的老式 Python 类。Python 2.6 或 Python 3 不再使用该方法了。另外，也不要被__int__()、__float__()或__complex__()等特殊方法所欺骗。尽管这些方法是通过显式转换（如int(x)或float(x)）来调用的，但在混合类型计算中绝不会隐式调用它们来执行类型转换。所以，如果编写的类中的运算符必须处理混合类型，则必须在每个运算符的实现中显式处理类型转换。
+
+类型和类成员测试
+***********************
+
+创建类的实例时，该实例的类型为类本身。要测试实例是否是类中的成员，可以使用内置函数 isinstance(obj,cname)。如果对象 obj 属于类 cname 或派生自 cname 的任何类，该函数将返回 True，如下所示：
+
+::
+
+    class A(object): pass
+    class B(A): pass
+    class C(object): pass
+
+    a = A()　　　　　 # 'A'的实例
+    b = B()　　　　　 # 'B'的实例
+    c = C()　　　　　 # 'C'的实例
+
+    type(a)　　　　　  # 返回类对象A
+    isinstance(a,A)　 # 返回True
+    isinstance(b,A)　 # 返回True，B派生自A
+    isinstance(b,C)　 # 返回False，C不是派生自A
+
+同样，如果类 A 是类 B 的子类，内置函数 issubclass(A,B) 将返回 True，如下所示：
+
+::
+
+    issubclass(B,A)　 # 返回True
+    issubclass(C,A)　 # 返回False
+
+检查对象的类型时，有一个问题是，程序员经常绕过继承，创建的对象只是模仿另一个对象的行为。例如，考虑下面这两个类：
+
+::
+
+    class Foo(object):
+    　　def spam(self,a,b):
+    　　　　pass
+
+    class FooProxy(object):
+    　　def __init__(self,f):
+    　　　　self.f = f
+    　　def spam(self,a,b):
+    　　　　return self.f.spam(a,b)
+
+在这个例子中，FooProxy 的功能与 Foo 相同。它实现了同样的方法，甚至悄悄使用了 Foo。但是，在类型系统中，FooProxy 不同于 Foo。例如：
+
+::
+
+    f = Foo()　　　　　　# 创建Foo
+    g = FooProxy(f)　　　# 创建FooProxy
+    isinstance(g, Foo)　 # 返回False
+
+如果编写的程序使用了 isinstance() 显式检查 Foo，那么该程序一定无法正确检查 FooProxy 对象。但是，我们通常并不需要这么严格的限制。相反，因为它具有相同的接口，断言 FooProxy 对象可以作为 Foo 使用或许更合适。为此，可以定义一个对象，在其中重新定义 isinstance() 和 issubclass() 的行为，目的是分组对象并对其进行类型检查，如下所示：
+
+::
+
+    class IClass(object):
+    　　def __init__(self):
+    　　　　 self.implementors = set()
+    　　def register(self,C):
+    　　　　 self.implementors.add(C)
+    　　def __instancecheck__(self,x):
+    　　　　 return self.__subclasscheck__(type(x))
+    　　def __subclasscheck__(self,sub):
+    　　　　 return any(c in self.implementors for c in sub.mro())
+
+    # 现在使用上面的对象
+    IFoo = IClass()
+    IFoo.register(Foo)
+    IFoo.register(FooProxy)
+
+在这个例子中，IClass 类创建了一个对象，该对象仅将一组其他类分组到一个集合中。register() 方法向该集合中添加新类。只要执行 isinstance(x, IClass) 操作，就会调用 __instancecheck__() 这个特殊方法。只要调用 issubclass(C,IClass) 操作，就会调用 __subclasscheck__() 这个特殊方法。
+
+通过使用 IFoo 对象和注册的实现器，现在可以用以下方式执行类型检查：
+
+::
+
+    f = Foo()　　　　　  # 创建Foo
+    g = FooProxy(f)　　　# 创建FooProxy
+    isinstance(f, IFoo)　　　 　# 返回True
+    isinstance(g, IFoo)　　　　 # 返回True
+    issubclass(FooProxy, IFoo) # 返回True
+
+需要强调的一点是，这个例子中不会发生强类型检查。IFoo 对象已经重载了实例检查操作，允许断言某个类属于某个组。它不会断言与实际的编程接口相关的任何信息，也不会实际执行其他任何验证操作。实际上，你可以注册任何希望分组到一起的对象的集合，无需考虑这些类如何彼此关联。通常，对类的分组基于某种标准，如将实现相同编程接口的所有类分组到一起。但是，重载 __instance-check__() 或 __subclasscheck__() 时，不应推断出这一含义。实际的含义应由应用程序决定。
+
+Python 提供了一种更加正式的机制来分组对象、定义接口并进行类型检查。这是通过定义抽象基类（将在下一节中介绍）来实现的。
+
+抽象基类
+***********************
+
+上一节介绍了 isinstance() 和 issubclass() 操作可以重载。这可以用于创建将类似的类分组到一起的对象，以及执行各种形式的类型检查。抽象基类以这一概念为基础，提供了一种方式，用以组织对象的层次结构，做出关于所需方法的断言，以及实现其他一些功能。
+
+要定义抽象基类，需要使用abc模块。该模块定义了一个元类（ABCMeta）和一组装饰器（@abstractmethod和@abstractproperty），用法如下：
+
+::
+
+    from abc import ABCMeta, abstractmethod, abstractproperty
+    class Foo:　　　　　　　　　　　# 在Python 3中，使用下面的语法
+    　　__metaclass__ = ABCMeta　# class Foo(metaclass=ABCMeta)
+    　　@abstractmethod
+    　　def spam(self,a,b):
+    　　　　pass
+    　　@abstractproperty
+
+    def name(self):
+    　　　　pass
+
+要定义抽象类，需要将其元类按上例所示设置为ABCMeta（还要注意 Python 2 与 Python 3 之间的语法区别）。这一步是必需的，因为抽象类的实现离不开元类（将在下一节介绍）。在抽象类中，@abstractmethod 和 @abstractproperty 装饰器指定方法或特性必须由 Foo 的子类实现。
+
+抽象类并不能直接实例化。如果尝试为上面的类创建 Foo，将得到以下错误：
+
+::
+
+    >>> f = Foo()
+    Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    TypeError: Can't instantiate abstract class Foo with abstract methods spam
+    >>>
+
+这一限制也适用于派生类。例如，如果类 Bar 继承自 Foo，但它没有实现一个或多个抽象方法，那么尝试创建 Bar 将会失败，并生成类似的错误。由于添加了这一检查过程，需要对必须在子类上实现的方法和特性进行断言的程序员而言，抽象类很有用。
+
+尽管抽象类会在必须实现的方法和特性上强制实施规则，但它不会对参数执行一致性检查或返回值。所以，抽象类不会检查某个子类，查看某个方法是否使用了与抽象方法相同的参数。同样，需要定义特性的抽象类也不会检查某个子类中的特性是否支持在基类中指定的特性的操作集（get、set 和 delete）。
+
+尽管抽象类无法实例化，但它可以定义要在子类中使用的方法和特性。而且，基类中的抽象方法仍然可以从子类中调用。例如，可以从子类调用 Foo.spam(a,b)。
+
+抽象基类支持对已经存在的类进行注册，使其属于该基类。这是用 register() 方法完成的，如下所示：
+
+::
+
+    class Grok(object):
+    　　def spam(self,a,b):
+    　　　　print("Grok.spam")
+
+    Foo.register(Grok)　　　 # 向Foo抽象基类注册
+
+向抽象基类注册某个类时，对于注册类中的实例，涉及抽象基类的类型检查操作（如 isinstance() 和 issubclass()）将返回 True。向抽象类注册某个类时，Python 不会检查该类是否实际实现了任何抽象方法或特性。这种注册过程只会影响类型检查。它不会对已注册的类进行额外的错误检查。
+
+与很多其他面向对象的语言不同，Python 将内置类型组织到一个相对扁平的层次结构中。例如，如果查看内置类型，如 int 或 float，可以看到它们直接继承自所有对象的根，即 object，而不是表示数字的中间基类。因此很难编写根据通用类别（如仅是一个数字的实例）检查和操作对象的程序。
+
+抽象类机制解决了这一问题，它允许将已存在的对象组织到用户可定义的类型层次结构中。而且，一些库模块会根据功能来组织内置类型。collections 模块包含与序列、集合和字典有关的各种操作的抽象基类。numbers 模块包含与组织数字层次结构相关的抽象基类。更多细节可以在第14章和第15章找到。
+
+元类
+***********************
+
+在 Python 中定义类时，类定义本身将成为一个对象，如下所示：
+
+::
+
+    class Foo(object): pass
+    isinstance(Foo,object)　　　# 返回True
+
+仔细想想，你就会认识到必须存在某个东西去创建 Foo 对象。类对象的这种创建方式是由一种名为元类的特殊对象控制的。简言之，元类就是知道如何创建和管理类的对象。
+
+在上面的例子中，控制 Foo 创建的元类是一个名为 type 的类。实际上，如果查看 Foo 的类型，将会发现它的类型为 type：
+
+::
+
+    >>> type(Foo)
+    <type 'type'>
+
+使用 class 语句定义新类时，将会发生很多事情。首先，类主体将作为其自己的私有字典内的一系列语句来执行。语句的执行与正常代码中的执行过程相同，只是增加了会在私有成员（名称以__开头）上发生的名称变形。最后，类的名称、基类列表和字典将传递给元类的构造函数，以创建相应的类对象。下面的例子演示了这一过程：
+
+::
+
+    class_name = "Foo"　　　　　　　 # 类名
+    class_parents = (object,)　　　 # 基类
+    class_body = """　　　　　　　　 # 类主体
+    def __init__(self,x):
+    　　self.x = x
+    def blah(self):
+    　　print("Hello World")
+    """
+    class_dict = { }
+    # 在局部字典class_dict中执行类主体
+    exec(class_body,globals(),class_dict)
+
+    # 创建类对象Foo
+    Foo = type(class_name,class_parents,class_dict)
+
+类创建的最后一步——调用元类 type() 的步骤——可以自定义。可以通过多种方式控制类定义的最后一步。首先，类可以显式地指定其元类，这通过设置 __metaclass__ 类变量（Python 2）或在基类元组中提供 metaclass 关键字参数（Python 3）来实现的。
+
+::
+
+    class Foo:　　　　　　　　　　 　# 在Python 3中，使用下面的语法
+    　　__metaclass__ = type　　　 # class Foo(metaclass=type)
+    　　...
+
+如果没有显式指定元类，class 语句将检查基类元组（如果存在）中的第一个条目。在这种情况下，元类与第一个基类的类型相同。所以，在编写以下内容时，Foo 的类型将与 object 相同。
+
+::
+
+    class Foo(object): pass
+
+如果没有指定基类，class 语句将检查全局变量 __metaclass__ 是否存在。如果找到了该变量，将使用它来创建类。如果设置了该变量，在使用简单的类语句时，它将控制类的创建方式，如下所示：
+
+::
+
+    __metaclass__ = type
+    class Foo:
+    　　　pass
+
+最后，如果没有找到 __metaclass__ 值，Python 将使用默认的元类。在 Python 2 中，默认的元类是 types.ClassType，这是所谓的旧式类。在 Python 中，这种类（从 Python 2.2 开始已不提倡使用）相当于类的原始实现。尽管这些类仍然可以使用，但在新代码中应该避免，这里对此不作进一步介绍。在 Python 3 中，默认的元类就是 type()。
+
+如果希望在框架中更强有力地控制用户自定义对象的定义，就可以在这种框架中使用元类，这就是元类的主要用途。定义自定义元类时，它通常会继承自 type()，并重新实现 __init__() 或 __new__() 等方法。下面给出了一个元类的例子，它要求所有方法必须拥有一个文档字符串：
+
+::
+
+    class DocMeta(type):
+    　　def __init__(self,name,bases,dict):
+    　　　　for key, value in dict.items():
+    　　　　　　# 跳过特殊方法和私有方法
+    　　　　　　if key.startswith("__"): continue
+    　　　　　　# 跳过不可调用的任何方法
+    　　　　　　if not hasattr(value,"__call__"): continue
+    　　　　　　# 检查doc字符串
+    　　　　　　if not getattr(value,"__doc__"):
+    　　　　　　　　raise TypeError("%s must have a docstring" % key)
+    　　　　type.__init__(self,name,bases,dict)
+
+在该元类中，__init__() 方法会检查类字典的内容。该方法对字典进行扫描，查找方法并检查是否所有方法都拥有文档字符串。如果没有，则生成一个 TypeError 异常。否则将调用 type.__init__() 的默认实现来初始化该类。
+
+如果要使用该元类，类需要明确选择它。最常用的实现技巧是首先定义一个基类，如下所示：
+
+::
+
+    class Documented:　　　　　　 # 在Python 3中，使用下面的语法
+    　　__metaclass__ = DocMeta　 # class Documented(metaclass=DocMeta)
+
+然后将该基类用作所有需要添加文档的对象的父类。例如：
+
+::
+
+    class Foo(Documented):
+    　　spam(self,a,b):
+    　　　　"spam does something"
+    　　　　pass
+
+这个例子演示了元类的一个主要用途，那就是检查和收集关于类定义的信息。元类不会更改实际创建的类的任何内容，只是添加一些额外的检查。
+
+在更高级的元类应用程序中，元类可以在创建类之前同时检查和更改类定义的内容。如果要进行更改，应该重新定义在创建类本身之前运行的 __new__() 方法。这个技巧通常与使用描述符或特性来包装属性结合使用，因为这样可以捕获在类中使用的名称。例如，下面给出了在7.8节中使用 TypedProperty 描述符的修改版本：
+
+::
+
+    class TypedProperty(object):
+    　　def __init__(self,type,default=None):
+    　　　　self.name = None
+    　　　　self.type = type
+    　　　　if default: self.default = default
+    　　　　else:　　　 self.default = type()
+    　　def __get__(self,instance,cls):
+    　　　　return getattr(instance,self.name,self.default)
+    　　def __set__(self,instance,value):
+    　　　　if not isinstance(value,self.type):
+    　　　　　　raise TypeError("Must be a %s" % self.type)
+    　　　　setattr(instance,self.name,value)
+    　　def __delete__(self,instance):
+    　　　　raise AttributeError("Can't delete attribute")
+
+在这个例子中，描述符的 name 属性被设置为 None。为了填补这一属性，我们将使用元类。例如：
+
+::
+
+    class TypedMeta(type):
+    　　def __new__(cls,name,bases,dict):
+    　　　　slots = []
+    　　　　for key,value in dict.items():
+    　　　　　　if isinstance(value,TypedProperty):
+    　　　　　　　　value.name = "_" + key
+    　　　　　　　　slots.append(value.name)
+    　　　　dict['__slots__'] = slots
+    　　　　return type.__new__(cls,name,bases,dict)
+
+    # 要使用的用户定义对象的基类
+    class Typed:　　　　　　　　　　 # 在Python 3中，使用下面的语法
+    　　__metaclass__ = TypedMeta　　# class Typed(metaclass=TypedMeta)
+
+在这个例子中，元类扫描类字典并查找 TypedProperty 的实例。如果找到，它设置 name 属性并在 slots 中建立名称列表。完成之后，__slots__ 属性将添加到类字典中，并通过调用 type() 元类的 __new__() 方法来构造该类。下面给出了使用这个新元类的例子：
+
+::
+
+    class Foo(Typed):
+    　　name = TypedProperty(str)
+    　　num　= TypedProperty(int,42)
+
+尽管使用元类可以显著改变用户定义的类的行为和语义，但不应该使类的工作方式与标准Python文档中的描述相差过多。如果编写的类不符合标准的类编码规则，用户将会对代码感到困惑。
+
+类装饰器
+***********************
+
+上一节展示了如何通过定义元类来自定义类。但是，有时所需做的只是在定义类之后执行一些额外处理，例如将类添加到注册表或数据库。这类问题的替代解决办法是使用类装饰器。类装饰器是一种函数，它接受类作为输入并返回类作为输出。例如：
+
+::
+
+    registry = { }
+    def register(cls):
+    　　 registry[cls.__clsid__] = cls
+    　　 return cls
+
+在这个例子中，注册函数在类中查找 __clsid__ 属性。如果找到，则使用该属性将该类添加到字典中，将类标识符映射到类对象。要使用该函数，可以在类定义前将它用作装饰器。例如：
+
+::
+
+    @register
+    class Foo(object):
+    　　__clsid__ = "123-456"
+    　　def bar(self):
+    　　　 pass
+
+此处使用装饰器语法带来了极大的便利。使用另一种方式同样可以实现这个目的：
+
+::
+
+    class Foo(object):
+    　　__clsid__ = "123-456"
+    　　def bar(self):
+    　　　pass
+    register(Foo)　　　# 注册类
+
+尽管可以在类装饰器函数中对类做很多邪恶的事情，但最好避免过多的魔法，如为类添加一个包装器或者重写类的内容。
+
+
+属性、函数和方法
+***********************
+
+实际上，方法和函数的区别表现在上边提到的参数 self 上。方法（更准确地说是关联的方法）将其第一个参数关联到它所属的实例，因此无需提供这个参数。无疑可以将属性关联到一个普通函数，但这样就没有特殊的 self 参数了。
+
+::
+
+    >>> class Class:
+    ...     def method(self):
+    ...         print('I have a self!')
+    ...
+    >>> def function():
+    ...     print("I don't...")
+    ...
+    >>> instance = Class()
+    >>> instance.method() I have a self!
+    >>> instance.method = function
+    >>> instance.method() I don't...
+
+请注意，有没有参数 self 并不取决于是否以刚才使用的方式（如 instance.method）调用方法。实际上，完全可以让另一个变量指向同一个方法。
+
+::
+
+    >>> class Bird:
+    ...     song = 'Squaawk!'
+    ...     def sing(self):
+    ...         print(self.song)
+    ...
+    >>> bird = Bird()
+    >>> bird.sing()
+    Squaawk!
+    >>> birdsong = bird.sing
+    >>> birdsong()
+    Squaawk!
+
+虽然最后一个方法调用看起来很像函数调用，但变量 birdsong 指向的是关联的方法 bird.sing ，这意味着它也能够访问参数 self （即它也被关联到类的实例）。
+
+7.2.4　再谈隐藏
+默认情况下，可从外部访问对象的属性。再来看一下前面讨论封装时使用的示例。
+
+>>> c.name
+'Sir Lancelot'
+>>> c.name = 'Sir Gumby'
+>>> c.get_name()
+'Sir Gumby'
+
+
+
+有些程序员认为这没问题，但有些程序员（如Smalltalk2 之父）认为这违反了封装原则。他们认为应该对外部完全隐藏 对象的状态（即不能从外部访问它们）。你可能会问，为何他们的立场如此极端？由每个对象管理自己的属性还不够吗？为何要向外部隐藏属性？毕竟，如果能直接访问ClosedObject （对象c 所属的类）的属性name ，就不需要创建方法setName 和getName 了。
+
+2 在Smalltalk中，只能通过对象的方法来访问其属性。
+
+关键是其他程序员可能不知道（也不应知道）对象内部发生的情况。例如，ClosedObject 可能在对象修改其名称时向管理员发送电子邮
+
+件。这种功能可能包含在方法set_name 中。但如果直接设置c.name ，结果将如何呢？什么都不会发生——根本不会发送电子邮件。为避免这类问题，可将属性定义为私有 。私有属性不能从对象外部访问，而只能通过存取器 方法（如get_name 和set_name ）来访问。
+
+注意 　第9章将介绍特性 （property），这是一种功能强大的存取器替代品。
+
+Python没有为私有属性提供直接的支持，而是要求程序员知道在什么情况下从外部修改属性是安全的。毕竟，你必须在知道如何使用对象之后才能使用它。然而，通过玩点小花招，可获得类似于私有属性的效果。
+
+要让方法或属性成为私有的（不能从外部访问），只需让其名称以两个下划线打头即可。
+
+class Secretive:
+
+    def __inaccessible(self):
+        print("Bet you can't see me ...")
+
+    def accessible(self):
+        print("The secret message is:")
+        self.__inaccessible()
+
+
+
+现在从外部不能访问__inaccessible ，但在类中（如accessible 中）依然可以使用它。
+
+>>> s = Secretive()
+>>> s.__inaccessible()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: Secretive instance has no attribute '__inaccessible'
+>>> s.accessible()
+The secret message is:
+Bet you can't see me ...
+
+
+
+虽然以两个下划线打头有点怪异，但这样的方法类似于其他语言中的标准私有方法。然而，幕后的处理手法并不标准：在类定义中，对所有以两个下划线打头的名称都进行转换，即在开头加上一个下划线和类名。
+
+>>> Secretive._Secretive__inaccessible
+<unbound method Secretive.__inaccessible>
+
+
+
+只要知道这种幕后处理手法，就能从类外访问私有方法，然而不应这样做。
+
+>>> s._Secretive__inaccessible()
+Bet you can't see me ...
+
+
+
+总之，你无法禁止别人访问对象的私有方法和属性，但这种名称修改方式发出了强烈的信号，让他们不要这样做。
+
+如果你不希望名称被修改，又想发出不要从外部修改属性或方法的信号，可用一个下划线打头。这虽然只是一种约定，但也有些作用。例如，from module import * 不会导入以一个下划线打头的名称3 。
+
+3 对于成员变量（属性），有些语言支持多种私有程度。例如，Java支持4种不同的私有程度。Python没有提供这样的支持，不过从某种程度上说，以一个和两个下划线打头相当于两种不同的私有程度。
+
+7.2.5　类的命名空间
+下面两条语句大致等价：
+
+def foo(x): return x * x
+foo = lambda x: x * x
+
+
+它们都创建一个返回参数平方的函数，并将这个函数关联到变量foo 。可以在全局（模块）作用域内定义名称foo ，也可以在函数或方法内定义。定义类时情况亦如此：在class 语句中定义的代码都是在一个特殊的命名空间（类的命名空间 ）内执行的，而类的所有成员都可访问这个命名空间。类定义其实就是要执行的代码段，并非所有的Python程序员都知道这一点，但知道这一点很有帮助。例如，在类定义中，并非只能包含def 语句。
+
+>>> class C:
+...     print('Class C being defined...')
+...
+Class C being defined...
+>>>
+
+
+
+这有点傻，但请看下面的代码：
+
+class MemberCounter:
+    members = 0
+    def init(self):
+        MemberCounter.members += 1
+
+>> m1 = MemberCounter()
+>>> m1.init()
+>>> MemberCounter.members
+1
+>>> m2 = MemberCounter()
+>>> m2.init()
+>>> MemberCounter.members
+2
+
+
+
+上述代码在类作用域内定义了一个变量，所有的成员（实例）都可访问它，这里使用它来计算类实例的数量。注意到这里使用了init 来初始化所有实例，第9章将把这个初始化过程自动化，也就是将init 转换为合适的构造函数。
+
+每个实例都可访问这个类作用域内的变量，就像方法一样。
+
+>>> m1.members
+2
+>>> m2.members
+2
+
+
+
+如果你在一个实例中给属性members 赋值，结果将如何呢？
+
+>>> m1.members = 'Two'
+>>> m1.members
+'Two'
+>>> m2.members
+2
+
+
+
+新值被写入m1 的一个属性中，这个属性遮住了类级变量。这类似于第6章的旁注“遮盖的问题”所讨论的，函数中局部变量和全局变量之间的关系。
+
+7.2.6　指定超类
+本章前面讨论过，子类扩展了超类的定义。要指定超类，可在class 语句中的类名后加上超类名，并将其用圆括号括起。
+
+class Filter:
+    def init(self):
+        self.blocked = []
+    def filter(self, sequence):
+        return [x for x in sequence if x not in self.blocked]
+
+class SPAMFilter(Filter): # SPAMFilter是Filter的子类
+    def init(self): # 重写超类Filter的方法init
+        self.blocked = ['SPAM']
+
+-
+Filter 是一个过滤序列的通用类。实际上，它不会过滤掉任何东西。
+
+>>> f = Filter()
+>>> f.init()
+>>> f.filter([1, 2, 3])
+[1, 2, 3]
+
+
+
+Filter 类的用途在于可用作其他类（如将'SPAM' 从序列中过滤掉的SPAMFilter 类）的基类（超类）。
+
+>>> s = SPAMFilter()
+>>> s.init()
+>>> s.filter(['SPAM', 'SPAM', 'SPAM', 'SPAM', 'eggs', 'bacon', 'SPAM'])
+['eggs', 'bacon']
+
+
+
+请注意SPAMFilter 类的定义中有两个要点。
+
+以提供新定义的方式重写了Filter 类中方法init 的定义。
+直接从Filter 类继承了方法filter 的定义，因此无需重新编写其定义。
+第二点说明了继承很有用的原因：可以创建大量不同的过滤器类，它们都从Filter 类派生而来，并且都使用已编写好的方法filter 。这就是懒惰的好处。
+
+7.2.7　深入探讨继承
+要确定一个类是否是另一个类的子类，可使用内置方法issubclass 。
+
+>>> issubclass(SPAMFilter, Filter)
+True
+>>> issubclass(Filter, SPAMFilter)
+False
+
+
+
+如果你有一个类，并想知道它的基类，可访问其特殊属性__bases__ 。
+
+>>> SPAMFilter.__bases__
+(<class __main__.Filter at 0x171e40>,)
+>>> Filter.__bases__
+(<class 'object'>,)
+
+
+
+同样，要确定对象是否是特定类的实例，可使用isinstance 。
+
+>>> s = SPAMFilter()
+>>> isinstance(s, SPAMFilter)
+True
+>>> isinstance(s, Filter)
+True
+>>> isinstance(s, str)
+False
+
+
+
+注意 　使用isinstance 通常不是良好的做法，依赖多态在任何情况下都是更好的选择。一个重要的例外情况是使用抽象基类和模块abc 时。
+
+如你所见，s 是SPAMFilter 类的（直接）实例，但它也是Filter 类的间接实例，因为SPAMFilter 是Filter 的子类。换而言之，所有SPAMFilter 对象都是Filter 对象。从前一个示例可知，isinstance 也可用于类型，如字符串类型（str ）。
+
+如果你要获悉对象属于哪个类，可使用属性__class__ 。
+
+如果你要获悉对象属于哪个类，可使用属性__class__ 。
+
+>>> s.__class__
+<class __main__.SPAMFilter at 0x1707c0>
+
+
+
+注意 　对于新式类（无论是通过使用__metaclass__ = type 还是通过从object 继承创建的）的实例，还可使用type(s) 来获悉其所属的类。对于所有旧式类的实例，type 都只是返回instance 。
+
+7.2.8　多个超类
+在前一节，你肯定注意到了一个有点奇怪的细节：复数形式的__bases__ 。前面说过，你可使用它来获悉类的基类，而基类可能有多个。为说明如何继承多个类，下面来创建几个类。
+
+class Calculator:
+    def calculate(self, expression):
+        self.value = eval(expression)
+
+class Talker:
+    def talk(self):
+        print('Hi, my value is', self.value)
+
+class TalkingCalculator(Calculator, Talker):
+    pass
+
+
+
+子类TalkingCalculator 本身无所作为，其所有的行为都是从超类那里继承的。关键是通过从Calculator 那里继承calculate ，并从Talker 那里继承talk ，它成了会说话的计算器。
+
+>>> tc = TalkingCalculator()
+>>> tc.calculate('1 + 2 * 3')
+>>> tc.talk()
+Hi, my value is 7
+
+
+
+这被称为多重继承 ，是一个功能强大的工具。然而，除非万不得已，否则应避免使用多重继承，因为在有些情况下，它可能带来意外的“并发症”。
+
+使用多重继承时，有一点务必注意：如果多个超类以不同的方式实现了同一个方法（即有多个同名方法），必须在class 语句中小心排列这些超类，因为位于前面的类的方法将覆盖位于后面的类的方法。因此，在前面的示例中，如果Calculator 类包含方法talk ，那么这个方法将覆盖Talker 类的方法talk （导致它不可访问）。如果像下面这样反转超类的排列顺序：
+
+class TalkingCalculator(Talker, Calculator): pass
+
+
+
+将导致Talker 的方法talk 是可以访问的。多个超类的超类相同时，查找特定方法或属性时访问超类的顺序称为方法解析顺序 （MRO），它使用的算法非常复杂。所幸其效果很好，你可能根本无需担心。
+
+7.2.9　接口和内省
+接口这一概念与多态相关。处理多态对象时，你只关心其接口（协议）——对外暴露的方法和属性。在Python中，不显式地指定对象必须包含哪些方法才能用作参数。例如，你不会像在Java中那样显式编写接口，而是假定对象能够完成你要求它完成的任务。如果不能完成，程序将失败。
+
+通常，你要求对象遵循特定的接口（即实现特定的方法），但如果需要，也可非常灵活地提出要求：不是直接调用方法并期待一切顺利，而是检查所需的方法是否存在；如果不存在，就改弦易辙。
+
+>>> hasattr(tc, 'talk')
+True
+>>> hasattr(tc, 'fnord')
+False
+
+在上述代码中，你发现tc （本章前面介绍的TalkingCalculator 类的实例）包含属性talk （指向一个方法），但没有属性fnord 。如果你愿意，还可以检查属性talk 是否是可调用的。
+
+>>> callable(getattr(tc, 'talk', None))
+True
+>>> callable(getattr(tc, 'fnord', None))
+False
+
+
+
+请注意，这里没有在if 语句中使用hasattr 并直接访问属性，而是使用了getattr （它让我能够指定属性不存在时使用的默认值，这里为None ），然后对返回的对象调用callable 。
+
+注意 　setattr 与getattr 功能相反，可用于设置对象的属性：
+
+>>> setattr(tc, 'name', 'Mr. Gumby')
+>>> tc.name
+'Mr. Gumby'
+
+
+
+要查看对象中存储的所有值，可检查其__dict__ 属性。如果要确定对象是由什么组成的，应研究模块inspect 。这个模块主要供高级用户创建对象浏览器（让用户能够以图形方式浏览Python对象的程序）以及其他需要这种功能的类似程序。有关对象和模块的详细信息，请参阅10.2节。
+
+7.2.10　抽象基类
+然而，有比手工检查各个方法更好的选择。在历史上的大部分时间内，Python几乎都只依赖于鸭子类型，即假设所有对象都能完成其工作，同时偶尔使用hasattr 来检查所需的方法是否存在。很多其他语言（如Java和Go）都采用显式指定接口的理念，而有些第三方模块提供了这种理念的各种实现。最终，Python通过引入模块abc 提供了官方解决方案。这个模块为所谓的抽象基类提供了支持。一般而言，抽象类是不能（至少是不应该 ）实例化的类，其职责是定义子类应实现的一组抽象方法。下面是一个简单的示例：
+
+from abc import ABC, abstractmethod
+
+class Talker(ABC):
+    @abstractmethod
+    def talk(self):
+        pass
+
+
+
+形如@this 的东西被称为装饰器，其用法将在第9章详细介绍。这里的要点是你使用@abstractmethod 来将方法标记为抽象的——在子类中必须实现的方法。
+
+注意 　如果你使用的是较旧的Python版本，将无法在模块abc 中找到ABC 类。在这种情况下，需要导入ABCMeta ，并在类定义开头包含代码行__metaclass__ = ABCMeta （紧跟在class 语句后面并缩进）。如果你使用的是3.4之前的Python 3版本，也可使用Talker(metaclass=ABCMeta) 代替Talker(ABC) 。
+
+抽象类（即包含抽象方法的类）最重要的特征是不能实例化。
+
+>>> Talker()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: Can't instantiate abstract class Talker with abstract methods talk
+
+
+
+假设像下面这样从它派生出一个子类：
+
+class Knigget(Talker):
+    pass
+
+
+
+由于没有重写方法talk ，因此这个类也是抽象的，不能实例化。如果你试图这样做，将出现类似于前面的错误消息。然而，你可重新编写这个类，使其实现要求的方法。
+
+class Knigget(Talker):
+    def talk(self):
+        print("Ni!")
+
+
+
+现在实例化它没有任何问题。这是抽象基类的主要用途，而且只有在这种情形下使用isinstance 才是妥当的：如果先检查给定的实例确实是Talker 对象，就能相信这个实例在需要的情况下有方法talk 。
+
+>>> k = Knigget()
+>>> isinstance(k, Talker)
+True
+>>> k.talk()
+Ni!
+
+
+
+然而，还缺少一个重要的部分——让isinstance 的多态程度更高的部分。正如你看到的，抽象基类让我们能够本着鸭子类型的精神使用这种实例检查！我们不关心对象是什么，只关心对象能做什么（它实现了哪些方法）。因此，只要实现了方法talk ，即便不是Talker 的子类，依然能够通过类型检查。下面来创建另一个类。
+
+class Herring:
+    def talk(self):
+        print("Blub.")
+
+
+
+这个类的实例能够通过是否为Talker 对象的检查，可它并不是Talker 对象。
+
+>>> h = Herring()
+>>> isinstance(h, Talker)
+False
+
+
+
+诚然，你可从Talker 派生出Herring ，这样就万事大吉了，但Herring 可能是从他人的模块中导入的。在这种情况下，就无法采取这样的做法。为解决这个问题，你可将Herring 注册为Talker （而不从Herring 和Talker 派生出子类），这样所有的Herring 对象都将被视为Talker 对象。
+
+>>> Talker.register(Herring)
+<class '__main__.Herring'>
+>>> isinstance(h, Talker)
+True
+>>> issubclass(Herring, Talker)
+True
+
+
+
+然而，这种做法存在一个缺点，就是直接从抽象类派生提供的保障没有了。
+
+>>> class Clam:
+...     pass
+...
+>>> Talker.register(Clam)
+<class '__main__.Clam'>
+>>> issubclass(Clam, Talker)
+True
+>>> c = Clam()
+>>> isinstance(c, Talker)
+>>> c.talk()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+AttributeError: 'Clam' object has no attribute 'talk'
+
+
+
+换而言之，应将isinstance 返回True 视为一种意图 表达。在这里，Clam 有成为Talker 的意图 。本着鸭子类型的精神，我们相信它能承担Talker 的职责，但可悲的是它失败了。
+
+标准库（如模块collections.abc ）提供了多个很有用的抽象类，有关模块abc 的详细信息，请参阅标准库参考手册。
+
+7.3　关于面向对象设计的一些思考
+专门探讨面向对象程序设计的图书很多，虽然这并非本书的重点，但还是要提供一些指南。
+
+将相关的东西放在一起。如果一个函数操作一个全局变量，最好将它们作为一个类的属性和方法。
+不要让对象之间过于亲密。方法应只关心其所属实例的属性，对于其他实例的状态，让它们自己去管理就好了。
+慎用继承，尤其是多重继承。继承有时很有用，但在有些情况下可能带来不必要的复杂性。要正确地使用多重继承很难，要排除其中的bug更难。
+保持简单。让方法短小紧凑。一般而言，应确保大多数方法都能在30秒内读完并理解。对于其余的方法，尽可能将其篇幅控制在一页或一屏内。
+确定需要哪些类以及这些类应包含哪些方法时，尝试像下面这样做。
+
+(1) 将有关问题的描述（程序需要做什么）记录下来，并给所有的名词、动词和形容词加上标记。
+
+(2) 在名词中找出可能的类。
+
+(3) 在动词中找出可能的方法。
+
+(4) 在形容词中找出可能的属性。
+
+(5) 将找出的方法和属性分配给各个类。
+
+有了面向对象模型 的草图后，还需考虑类和对象之间的关系（如继承或协作）以及它们的职责。为进一步改进模型，可像下面这样做。
+
+(1) 记录（或设想）一系列用例 ，即使用程序的场景，并尽力确保这些用例涵盖了所有的功能。
+
+(2) 透彻而仔细地考虑每个场景，确保模型包含了所需的一切。如果有遗漏，就加上；如果有不太对的地方，就修改。不断地重复这个过程，直到对模型满意为止。
+
+有了你认为行之有效的模型后，就可以着手编写程序了。你很可能需要修改模型或程序的某些部分，所幸这在Python中很容易，请不用担心。只管按这里说的去做就好。（如果你需要更详细的面向对象编程指南，请参阅第19章的推荐书目。）
