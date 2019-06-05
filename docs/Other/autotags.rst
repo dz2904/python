@@ -696,11 +696,10 @@ handler.sub_emphasis 。这意味着可在re.sub 语句中使用这个函数：
             for block in blocks(file):
                 for filter in self.filters:
                     block = filter(block, self.handler)
-                    for rule in self.rules:
-                        if rule.condition(block):
-                            last = rule.action(block,
-                                   self.handler)
-                            if last: break
+                for rule in self.rules:
+                    if rule.condition(block):
+                        last = rule.action(block, self.handler)
+                        if last: break
             self.handler.end('document')
 
     class BasicTextParser(Parser):
