@@ -1,0 +1,27 @@
+keyword 关键字集合
+############################
+
+此模块用于判断字符串是否为关键字（包含为解释器定义的所有关键字的序列）。
+
+keyword.kwlist
+****************************
+
+查看 python 的所有关键字.
+
+>>> import keyword
+>>> print(keyword.kwlist)
+['False', 'None', 'True', 'and', 'as', 'assert', 'async',
+ 'await', 'break', 'class', 'continue', 'def', 'del', 'elif',
+ 'else', 'except', 'finally', 'for', 'from', 'global', 'if',
+ 'import', 'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass',
+ 'raise', 'return', 'try', 'while', 'with', 'yield']
+
+keyword.iskeyword
+****************************
+
+检查字符串是否为关键字，返回 True 或者 False 。
+
+>>> keyword.iskeyword('as')
+True
+>>> keyword.iskeyword('eval')  # eval 是 python 的内建函数
+False
