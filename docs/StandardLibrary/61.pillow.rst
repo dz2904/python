@@ -1,0 +1,72 @@
+Pillow 图像处理库
+############################
+
+Python Imaging Library (PIL)，是 Python 平台上强大的图像处理库。但是，由于 PIL 仅支持到 Python 2.7，加上年久失修，于是一群志愿者在 PIL 的基础上创建了兼容的版本，名字叫 Pillow，支持最新的 Python 3.x，还加入了许多新特性。
+
+这个库提供了广泛的文件格式支持，高效的内部展现，以及十分强大的图像处理能力。
+核心图像库旨在快速访问以几种基本像素格式存储的数据。它应该为一般的图像处理工具提供坚实的基础。
+
+.. warning::
+
+    Pillow 和 PIL 不能在同一环境中共存。在安装 Pillow 之前，请卸载 PIL。
+
+
+快速入门
+****************************
+
+来看看最常见的图像缩放操作，只需三四行代码：
+
+.. highlight:: none
+
+::
+
+    from PIL import Image
+
+    # 打开一个jpg图像文件，注意是当前路径:
+    im = Image.open('test.jpg')
+    # 获得图像尺寸:
+    w, h = im.size
+    print('Original image size: %sx%s' % (w, h))
+    # 缩放到50%:
+    im.thumbnail((w//2, h//2))
+    print('Resize image to: %sx%s' % (w//2, h//2))
+    # 把缩放后的图像用jpeg格式保存:
+    im.save('thumbnail.jpg', 'jpeg')
+
+其他功能如切片、旋转、滤镜、输出文字、调色板等一应俱全。
+
+Image 类
+****************************
+
+PIL 最重要的类是 Image class, 你可以通过多种方法创建这个类的实例；你可以从文件加载图像，或者处理其他图像, 或者从 scratch 创建。
+
+要从文件加载图像，使用 ``open()`` 函数， 在 Image 模块:
+
+>>> from PIL import Image
+>>> im = Image.open("lena.ppm")
+
+加载成功将返回一个 Image 对象。 你现在可以使用示例属性检查文件内容:
+
+>>> from __future__ import print_function
+>>> print(im.format, im.size, im.mode)
+PPM (512, 512) RGB
+
+format 这个属性标识了图像来源。如果图像不是从文件读取它的值就是 ``None`` 。size 属性是一个二元 tuple，包含 width 和 height（宽度和高度，单位都是 px）。mode 属性定义了图像 bands 的数量和名称，以及像素类型和深度。常见的 modes 有 “L” (luminance) 表示灰度图像, “RGB” 表示真彩色图像, and “CMYK” 表示出版图像。
+
+如果文件打开错误，会返回 IOError 错误。
+
+只要你有了 Image 类的实例，你就可以通过类的方法处理图像。比如，下列方法可以显示图像:
+
+>>> im.show()
+
+.. note::
+
+    标准的 show() 效率并不高，它需要保存图像到临时文件然后通过 xv 显示图像。你需要先安装 xv ，显示图像有助于调试和测试。
+
+
+读写图像
+============================
+
+PIL 模块支持大量图片格式。使用在 Image 模块的 ``open()`` 函数从磁盘读取文件。你不需要知道文件格式就能打开它，这个库能够根据文件内容自动确定文件格式。
+
+要保存文件，使用 Image 类的 ``save()`` 方法。保存文件的时候文件名变得重要了。除非你指定格式，否则这个库将会以文件名的扩展名作为格式保存。
