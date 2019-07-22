@@ -8,3 +8,4 @@
    :glob:
 
    ../StandardLibrary/*
+   `Requests 文档 <http://cn.python-requests.org/zh_CN/latest/>`_
