@@ -215,3 +215,4 @@ result = re.match(pattern, string)
 
 
 - 正则表达式 HOWTO https://docs.python.org/zh-cn/3/howto/regex.html
+- 正则表达式操作 https://docs.python.org/zh-cn/3/library/re.html?highlight=re#module-re
