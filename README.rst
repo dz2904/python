@@ -7,7 +7,7 @@ python3 入门指南
 ************************************
 
 1. 介绍
-    * 选择一个解释器
+    * 03_Python 解释器 Done
     * 安装 Python
         * Linux
         * Mac OS
@@ -16,6 +16,7 @@ python3 入门指南
         * pip
         * pipenv 虚拟环境
         * IDE
+    * 30_编辑器 Done
     * 基本语法
 2. 内置数据类型
     * 00_数据类型 Done
@@ -31,8 +32,8 @@ python3 入门指南
 3. 基本语句
     * 03_简单语句  Done
     * 04_复杂语句  Done
-    * 复杂的条件
-    * if 语句
+    * 10_复杂的条件  Done
+    * 12_if 语句  Done
     * While 语句
     * for 语句
     * try 异常
