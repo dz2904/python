@@ -30,14 +30,15 @@ python3 入门指南
     * 13_集合方法 Done
     * 51_内置函数  Done
 3. 基本语句
+    * lambda 表达式
     * 03_简单语句  Done
     * 04_复杂语句  Done
     * 10_复杂的条件  Done
     * 12_if 语句  Done
-    * While 语句
-    * for 语句
+    * While 语句  Done
+    * for 语句  Done
     * try 异常
-    * 推导式
+    * 推导式  Done
     * 生成器
     * 装饰器
 4. 基础知识
@@ -58,7 +59,7 @@ python3 入门指南
     * 机器学习
 7. 优秀代码赏析
     * 君子见贤思齐
-8. 其它
+8. 软实力
     * Python 之禅
     * PEP8 代码风格
     * 结构化程序
