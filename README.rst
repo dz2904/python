@@ -20,6 +20,7 @@ python3 入门指南
     * 基本语法
 2. 内置数据类型
     * 00_数据类型 Done
+    * 02_数字类型 Done
     * 03_序列 Done
     * 04_通用的序列操作 Done
     * 06_字典映射 Done
@@ -30,15 +31,15 @@ python3 入门指南
     * 13_集合方法 Done
     * 51_内置函数  Done
 3. 基本语句
-    * lambda 表达式
     * 03_简单语句  Done
     * 04_复杂语句  Done
-    * 10_复杂的条件  Done
-    * 12_if 语句  Done
-    * While 语句  Done
-    * for 语句  Done
+    * 06_lambda 表达式  Done
+    * 40_复杂的条件  Done
+    * 42_if 语句  Done
+    * 43_while 语句  Done
+    * 44_for 语句  Done
     * try 异常
-    * 推导式  Done
+    * 80_推导式  Done
     * 生成器
     * 装饰器
 4. 基础知识
