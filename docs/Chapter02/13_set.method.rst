@@ -63,7 +63,7 @@ set.clear()
     set()
 
 
-.. _`set.copy()`:	
+.. _`set.copy()`:
 
 set.copy()
 ************************************
@@ -237,7 +237,7 @@ set.issubset(other)
     True
 
 
-.. _`set.issuperset()()`:
+.. _`set.issuperset()`:
 
 set.issuperset(other)
 ************************************
@@ -270,14 +270,14 @@ set.pop()
 ::
 
     >>> a = {'a', 'b', 'c'}
-    
+
     >>> a.pop()
     'a'
     >>> a.pop()
     'c'
     >>> a.pop()
     'b'
-    
+
     >>> a.pop()
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>

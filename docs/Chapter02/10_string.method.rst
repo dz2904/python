@@ -128,12 +128,12 @@ suffix 也可以为由多个供查找的后缀构成的元组。
     True
 
 
-.. _`str.str.expandtabs()`:
+.. _`str.expandtabs()`:
 
 str.expandtabs(tabsize=8)
 ************************************
 
-返回字符串的副本，将所有的制表符 ``\t`` 替换为空格（一个或多个）。tabsize 设置空格的个数（默认值 8）。 
+返回字符串的副本，将所有的制表符 ``\t`` 替换为空格（一个或多个）。tabsize 设置空格的个数（默认值 8）。
 
 ::
 
@@ -171,7 +171,7 @@ str.find(sub[, start[, end]])
     # str.rfind() 返回子字符串的最大索引
     >>> 'Hello World'.rfind('l')
     9
-    
+
 
     # str.index() 与 find() 相似，但找不到子类时会引发 ValueError
     >>> 'Hello World'.index('l')
@@ -181,7 +181,7 @@ str.find(sub[, start[, end]])
     Traceback (most recent call last):
       File "<stdin>", line 1, in <module>
     ValueError: substring not found
-    
+
     # str.rindex() 返回子字符串的最大索引，找不到子类时会引发 ValueError
     >>> 'Hello World'.rindex('l')
     9
@@ -297,7 +297,7 @@ str.format(*args, **kwargs)
     # % 百分比，将数字乘以 100 并显示为 f 格式，后面带百分号
     >>> '{:%}'.format(0.13)
     '13.000000%'
-    
+
     >>> '{:.2%}'.format(0.13145)
     '13.15%'
 
@@ -487,7 +487,7 @@ str.lower()
     # str.upper() 原字符串的大写字符
     >>> 'Hello World'.upper()
     'HELLO WORLD'
-    
+
     # str.swapcase() 反转原字符串的大小写
     >>> 'Hello World'.swapcase()
     'hELLO wORLD'
@@ -643,7 +643,7 @@ str.splitlines([keepends])
 str.strip([chars])
 ************************************
 
-返回原字符串的副本，移除其中的开头和末尾的空白字符（不包括中间的空白）。 chars 参数为指定要移除字符的字符串。 如果省略或为 None，则默认移除空格符。 
+返回原字符串的副本，移除其中的开头和末尾的空白字符（不包括中间的空白）。 chars 参数为指定要移除字符的字符串。 如果省略或为 None，则默认移除空格符。
 
 实际上 chars 参数并非指定单个前缀或后缀；而是参数值的所有组合（即包含的字符都会删除）。可以将参数看成一个但字符的元素，然后但字符删除。
 
@@ -691,4 +691,3 @@ str.zfill(width)
 
     >>> '+32'.zfill(5)
     '+0032'
-
