@@ -138,7 +138,7 @@ any(iterable)
 
 如果 iterable 的任一元素为真则返回 True，否则返回 False。 如果迭代器为空，返回 False。
 
-此函数与 all() 正好相反。
+此函数与 `all()`_ 正好相反。
 
 
 .. _`bin()`:
