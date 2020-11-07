@@ -1,0 +1,19 @@
+os — 操作系统接口模块
+##########################
+
+常用 os 模块。
+
+- Shell 变量 os.environ
+- 运行程序 os.system  os.popen  os.execv  os.spawnv
+- 派生进程 os.fork  os.pipe  os.waitpid  os.kill
+- 文件描述符，文件锁 os.open  os.read  os.write
+- 文件处理 os.remove  os.rename  os.mkfifo  os.mkdir  os.rmdir
+- 管理工具 os.getcwd  os.chdir  os.chmod  os.getpid  os.listdir  os.access
+- 移植工具 os.sep  os.pathsep  os.curdir  os.path.split os.path.join
+- 路径名工具 os.path.exists('path')  os.path.isdir('path')  os.path.getsize('path')
+
+
+进程参数
+************************************
+
+

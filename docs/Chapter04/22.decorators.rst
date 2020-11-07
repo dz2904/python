@@ -1,47 +1,73 @@
 装饰器 @
-#######################
+####################################
 
-装饰器是一个函数，其主要用途是包装另一个函数或类。这种包装的首要目的是光明正大地修改或增强被包装对象的行为。语法上使用特殊符号 ``@`` 表示装饰器，如下所示：
+装饰器其实是一个函数，主要用途是装饰（包装）另一个函数或类。这种装饰的首要目的是修改或增加原函数的功能。装饰器也可以抽离出大量与函数功能本身无关的雷同代码到装饰器中重用。
+
+谈装饰器前，首先来回顾一下 Python 中函数的对象、闭包和嵌套属性：
 
 .. highlight:: none
 
 ::
 
-    @trace
-    def square(x):
-    　　 return x*x
+    >>> def hi(name):
+            return 'Hi ' + name
 
-上面的代码是下面代码的简化：
+    # 函数后边不加小括号，可以赋值给变量
+    >>> greet = hi
+    >>> greet('glenn')
+    'Hi glenn'
+
+    ------------------------------------
+
+    # 从嵌套函数中返回函数
+    >>> def hi():
+            def glenn():
+                return 'Hi glenn'
+            return glenn
+
+    >>> hi()
+    <function hi.<locals>.glenn at 0x7f5f519959d0>
+    >>> hi()()
+    'Hi glenn'
+
+    >>> a = hi()
+    >>> a()
+    'Hi glenn'
+
+
+Python 中的函数也可以像变量一样当做参数传递给另外一个函数，例如：
 
 ::
 
-    def square(x):
-    　　return x*x
-    square = trace(square)
+    >>> def cake():
+            return 'cake'
 
-这个例子中定义了函数 square()。但在定义之后，函数对象本身就立即被传递给函数 trace()，后者返回一个对象替代原始的 square。现在，让我们看一下 trace 的实现，从而解释这样做的用处：
+    >>> def add(function):
+                def candles():
+                    return function() + ' and candles'
+                return candles
+
+    >>> cake = add(cake)
+    >>> cake()
+    'cake and candles'
+
+
+上边的例子正是装饰器的功能，它封装一个函数并且修改（增强）它的行为。在 Python 使用特殊符号 ``@`` 表示装饰器，如下所示：
 
 ::
 
-    enable_tracing = True
-    if enable_tracing:
-    　　debug_log = open("debug.log","w")
+    # @add 相当于 cake = add(cake)
+    >>> @add
+        def cake():
+          return 'cake'
 
-    def trace(func):
-    　　if enable_tracing:
-    　　　　def callf(*args,**kwargs):
-    　　　　　　debug_log.write("Calling %s: %s, %s\n" %
-    　　　　　　　　　　　　　　 (func.__name__, args, kwargs))
-    　　　　　　r = func(*args,**kwargs)
-    　　　　　　debug_log.write("%s returned %s\n" % (func.__name, r))
-    　　　　　　return r
-    　　　　return callf
-    　　else:
-    　　　　return func
+    >>> cake()
+    'cake and candles'
 
-在这段代码中，trace() 创建了一个包装器函数，它会写入一些调试输出，然后调用原始函数对象。因此如果调用 square() 函数，看到的将是包装器中 write() 方法的输出。trace() 函数返回的函数 callf 是一个闭包，用于替换原始的函数。关于这种实现的一个有趣方面是，跟踪功能本身只能像上面这样使用全局变量 enable_tracing 来启用。如果把这个变量置为 False，trace() 装饰器只是返回未修改的原始函数。因此，禁用跟踪时，使用装饰器不会增加性能负担。
 
-使用装饰器时，它们必须出现在函数或类定义之前的单独行上。可以同时使用多个装饰器，例如：
+在使用装饰器时，函数不需要做任何修改，只需在定义的地方加上装饰器，调用函数和以前一样。这样，即提高了程序的可重复利用性，并增加了程序的可读性。
+
+也可以同时使用多个装饰器，例如：
 
 ::
 
@@ -51,45 +77,87 @@
     def grok(x):
     　　pass
 
-在这个例子中，装饰器将按照它们出现的先后顺序应用，结果等同于：
+    # 结果等同于：
+    grok = foo(bar(spam(grok))) 
+
+
+使用场景
+************************************
+
+来看一下装饰器在哪些地方特别耀眼，以及使用它可以让一些事情管理起来变得更简单。它经常用于有切面需求的场景，比如：插入日志、性能测试、事务处理、缓存、权限校验等场景，装饰器是解决这类问题的绝佳设计。
+
+
+授权(Authorization)
+====================================
+
+装饰器能有助于检查某个人是否被授权去使用一个 web 应用的端点(endpoint)。它们被大量使用于 Flask 和 Django web 框架中。这里是一个例子来使用基于装饰器的授权：
 
 ::
 
-    def grok(x):
-    　　pass
-    grok = foo(bar(spam(grok)))
+    from functools import wraps
+     
+    def requires_auth(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            auth = request.authorization
+            if not auth or not check_auth(auth.username, auth.password):
+                authenticate()
+            return f(*args, **kwargs)
+        return decorated
+    
+    
+日志(Logging)
+====================================
 
-装饰器也可以接受参数，例如：
-
-::
-
-    @eventhandler('BUTTON')
-    def handle_button(msg):
-    　　 ...
-    @eventhandler('RESET')
-    def handle_reset(msg):
-    　　 ...
-
-如果提供参数，装饰器的语义如下所示：
-
-::
-
-    def handle_button(msg):
-    　　 ...
-    temp = eventhandler('BUTTON')　　　　　　# 使用提供的参数调用装饰器
-    handle_button = temp(handle_button)　　 # 调用装饰器返回的函数
-
-在这个例子中，装饰器函数只接受带有 ``@`` 描述符的参数。它接着返回一个函数，这个函数在调用的时候以一个函数作为参数。下面举一个例子：
+日志是装饰器运用的另一个亮点。这是个例子：
 
 ::
 
-    # 事件处理程序装饰器
-    event_handlers = { }
-    def eventhandler(event):
-    　　 def register_function(f):
-    　　　　　event_handlers[event] = f
-    　　　　　return f
-    　　 return register_function
+    from functools import wraps
+     
+    def logit(func):
+        @wraps(func)
+        def with_logging(*args, **kwargs):
+            print(func.__name__ + " was called")
+            return func(*args, **kwargs)
+        return with_logging
+     
+    @logit
+    def addition_func(x):
+       """Do some math."""
+       return x + x
+    
+    result = addition_func(4)
+    # Output: addition_func was called
+
+
+带参数的装饰器
+************************************
+
+带参数的装饰器会为装饰器的编写和使用提供了更大的灵活性。比如，不同业务需要不一样的日志级别，就可以在装饰器中指定日志的等级。
+
+::
+
+    def addname(name='glenn'):
+        def add(func):
+            def my():
+                return func(name) + ' My name is Job!'
+            return my
+        return addname
+
+    @addname('lili')
+    def hi(name):
+        return 'Hi ' + name + ','
+
+    print(hi())
+
+    Hi lili, My name is Job!
+
+上面的 addname 是允许带参数的装饰器。它实际上是对原有装饰器的一个函数封装，并返回一个装饰器。可以将它理解为一个含有参数的闭包。当使用 @addname('lili') 调用的时候，Python 能够发现这一层的封装，并把参数传递到装饰器的环境中。
+
+
+类装饰器
+************************************
 
 装饰器也可以应用于类定义，例如：
 
@@ -104,10 +172,9 @@
 
 对于类装饰器，应该让装饰器函数始终返回类对象作为结果。需要使用原始类定义的代码可能要直接引用类成员，如 Bar.spam。如果装饰器函数 foo() 返回一个函数，这种引用就是不正确的。
 
-装饰器与函数其他方面的交互行为（如递归、文档字符串和函数属性）有些怪异。本章稍后将会讨论这些问题。
 
 装饰器中的文档字符串
-***********************
+************************************
 
 当函数中使用装饰器时，要注意使用装饰器包装函数可能会破坏与文档字符串相关的帮助功能。例如，考虑以下代码：
 
