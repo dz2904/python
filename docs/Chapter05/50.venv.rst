@@ -1,0 +1,52 @@
+venv  创建虚拟环境
+####################################
+
+Python3.3 以上的版本通过 venv 模块原生支持虚拟环境，可以代替 Python 之前的 virtualenv。
+
+venv 模块提供了创建轻量级“虚拟环境”，提供与系统 Python 的隔离支持。可以让每个项目单独使用一个环境（独立的 Python 版本和模块），而不会影响系统环境，也不会影响其他项目的环境。
+
+.. hint:: 优点
+
+    1. 项目应用独立的开发环境，系统环境升级不影响其他应用
+    2. 防止系统中出现包管理混乱和版本冲突
+
+
+创建虚拟环境
+************************************
+
+通过执行 venv 指令来创建一个 虚拟环境:
+
+.. highlight:: none
+
+::
+
+    # 指定创建目录
+    python3 -m venv /path/to/new/virtual/environment
+
+    # 在当前目录创建
+    python3 -m venv .
+
+
+运行此命令将在目标目录中创建一个 pyvenv.cfg 文件，在文件中有一个 home 键指向运行此命令的 Python 安装（目标目录的常用名称是 .venv）。并创建一个 bin 子目录（在 Windows 环境中是 Scripts），其中包含 Python 二进制文件的副本或符号链接。还会创建一个（初始为空的） lib/pythonX.Y/site-packages 子目录（在 Windows 上是 Lib\site-packages）。
+
+
+激活虚拟环境
+************************************
+
+必须激活虚拟环境后才可以使用，否则依然会使用系统环境。
+
+::
+
+    # 激活虚拟环境，Windows 环境中为 Scripts 文件夹下
+    [Linux]$ source bin/activate
+    (environment) [Linux]$ pip3 install pelican
+
+
+    # 退出虚拟环境
+    (environment) [Linux]$ deactivate 
+    [Linux]$ 
+
+
+.. hint::
+
+    进入虚拟环境后，在命名行前会多出一个用括号括起来的项目名称。
